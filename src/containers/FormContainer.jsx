@@ -11,12 +11,15 @@ class FormContainer extends Component {
 
     this.state = {
       feedingEventInfo: {
+        location: '',
+        time: '',
         numberOfDucks: '',
         food: '',
         specificFood: '',
         foodType: '',
         specificFoodType: '',
-        currentFoodTypeOptions: null
+        currentFoodTypeOptions: null,
+        amountOfFood: ''
       },
 
       valueRequiringSpecifics: 'Other',
@@ -43,57 +46,58 @@ class FormContainer extends Component {
 
   /* This lifecycle hook gets executed when the component mounts */
 
+  /**
+   * Handle selection of the number of ducks
+   */
   handleRange(e) {
-       let value = e.target.value;
-   this.setState( prevState => ({ feedingEventInfo :
-        {...prevState.feedingEventInfo, numberOfDucks: value
-        }
-      }), () => console.log(this.state.feedingEventInfo))
+    let value = e.target.value;
+    this.setState( prevState => ({ feedingEventInfo :
+        {...prevState.feedingEventInfo, numberOfDucks: value}
+    }), () => console.log(this.state.feedingEventInfo));
   }
 
   /**
    * Handle the food selection. This influences the specific food field and food type selection.
-   * We do not clear specific food/type fields when selection changes and let the POST handle that logic instead.
+   * We do not clear specific food/type fields when selection changes. Form submission handles that logic.
    */
   handleFood(e) {
     let value = e.target.value;
     this.setState( prevState => ({ feedingEventInfo :
-        {...prevState.feedingEventInfo, food: value
-        }
+        {...prevState.feedingEventInfo, food: value}
     }), () => console.log(this.state.feedingEventInfo));
 
     // Clear any selected food type value since we're about to set a new list of options
     this.setState( prevState => ({ feedingEventInfo :
-      {...prevState.feedingEventInfo, foodType: ''
-      }
+      {...prevState.feedingEventInfo, foodType: ''}
     }), () => console.log(this.state.feedingEventInfo));
 
     // Set new food type options based on the selected food
     this.setState( prevState => ({ feedingEventInfo :
-      {...prevState.feedingEventInfo, currentFoodTypeOptions: this.state.foodTypeOptionsMap[value]
-      }
+      {...prevState.feedingEventInfo, currentFoodTypeOptions: this.state.foodTypeOptionsMap[value]}
     }), () => console.log(this.state.feedingEventInfo));
-
-      // TODO make sure food type does not default to first item in the list when selection changes
   }
 
+  /**
+   * Handle selection of food type. This influences whether we want a specific food type entry.
+   * We do not clear specific food type fields when selection changes. Form submission handles that logic.
+   */
   handleFoodType(e) {
     let value = e.target.value;
     this.setState( prevState => ({ feedingEventInfo :
-        {...prevState.feedingEventInfo, foodType: value
-        }
-    }), () => console.log(this.state.feedingEventInfo))
-
-      // TODO add note about deliberately not clearing "other" values
+        {...prevState.feedingEventInfo, foodType: value}
+    }), () => console.log(this.state.feedingEventInfo));
   }
 
+  /**
+   * Handle generic input fields.
+   * We do not sanitize this input here. Form submission handles that logic.
+   */
   handleInput(e) {
-       let value = e.target.value;
-       let name = e.target.name;
-   this.setState( prevState => ({ feedingEventInfo :
-        {...prevState.feedingEventInfo, [name]: value
-        }
-      }), () => console.log(this.state.feedingEventInfo))
+    let value = e.target.value;
+    let name = e.target.name;
+    this.setState( prevState => ({ feedingEventInfo :
+        {...prevState.feedingEventInfo, [name]: value}
+    }), () => console.log(this.state.feedingEventInfo));
   }
 
   handleFormSubmit(e) {
@@ -117,16 +121,18 @@ class FormContainer extends Component {
   }   
 
   handleClearForm(e) {
-    //TODO keep updated
       e.preventDefault();
       this.setState({
         feedingEventInfo: {
+          location: '',
+          time: '',
           numberOfDucks: '',
           food: '',
           specificFood: '',
           foodType: '',
           specificFoodType: '',
-          currentFoodTypeOptions: null
+          currentFoodTypeOptions: null,
+          amountOfFood: ''
         },
       })
   }
@@ -199,6 +205,6 @@ class FormContainer extends Component {
 
 const buttonStyle = {
   margin : '10px 10px 10px 10px'
-}
+};
 
 export default FormContainer;
