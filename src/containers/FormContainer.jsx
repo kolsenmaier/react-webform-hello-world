@@ -14,7 +14,7 @@ class FormContainer extends Component {
     this.state = {
       feedingEventInfo: {
         location: '',
-        time: new Date(),
+        time: '',
         numberOfDucks: '',
         food: '',
         specificFood: '',
@@ -217,18 +217,26 @@ class FormContainer extends Component {
           /> {/* Food amount Selection */}
 
           <Input inputType={'text'}
-            title={'Location and date'}
+            title={'Location'}
             name={'location'}
             value = {this.state.feedingEventInfo.location}
             placeholder = {'Enter the location you fed the ducks'}
             handleChange = {this.handleInput}
           />
 
-          <DateTimePicker
-            name={"time"}
-            value={this.state.feedingEventInfo.time}
-            onChange={this.handleDate}
-          /><br/>
+          {/*<DateTimePicker*/}
+            {/*name={"time"}*/}
+            {/*value={this.state.feedingEventInfo.time}*/}
+            {/*onChange={this.handleDate}*/}
+          {/*/><br/>*/}
+
+          <Input inputType={'text'}
+            title={'Time'}
+            name={'time'}
+            value = {this.state.feedingEventInfo.time}
+            placeholder = {'Enter the approximate time in 24h e.g. 11:00, 14:30'}
+            handleChange = {this.handleInput}
+          />
 
           <Button
             action = {this.handleFormSubmit}
