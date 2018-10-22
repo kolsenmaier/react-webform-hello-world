@@ -1,4 +1,6 @@
-import React, {Component} from 'react';  
+import React, {Component} from 'react';
+import DateTimePicker from 'react-datetime-picker';
+import '../react-datetime.css';
 
 /* Import Components */
 import Input from '../components/Input';
@@ -12,7 +14,7 @@ class FormContainer extends Component {
     this.state = {
       feedingEventInfo: {
         location: '',
-        time: '',
+        time: new Date(),
         numberOfDucks: '',
         food: '',
         specificFood: '',
@@ -34,17 +36,30 @@ class FormContainer extends Component {
         'Seeds' :  ['Bird seed', 'Other'],
         'Other' : null
       },
+      foodAmountOptions: ['25g', '50g', '100g', '200g', '500g', '1000g', 'More than 1000g', 'I don\'t know'],
     };
 
+    this.handleDate = this.handleDate.bind(this);
     this.handleRange = this.handleRange.bind(this);
     this.handleFood = this.handleFood.bind(this);
     this.handleFoodType = this.handleFoodType.bind(this);
+    this.handleFoodAmount = this.handleFoodAmount.bind(this);
     this.handleInput = this.handleInput.bind(this);
     this.handleClearForm = this.handleClearForm.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
   }
 
   /* This lifecycle hook gets executed when the component mounts */
+
+  /**
+   * Handle datetime picker
+   */
+  handleDate(e) {
+    //let value = e.target.value;
+    this.setState( prevState => ({ feedingEventInfo :
+        {...prevState.feedingEventInfo, time: e}
+    }), () => console.log(this.state.feedingEventInfo));
+  }
 
   /**
    * Handle selection of the number of ducks
@@ -86,6 +101,16 @@ class FormContainer extends Component {
     this.setState( prevState => ({ feedingEventInfo :
         {...prevState.feedingEventInfo, foodType: value}
     }), () => console.log(this.state.feedingEventInfo));
+  }
+
+  /**
+   * Handle selection of the amount of food
+   */
+  handleFoodAmount(e) {
+      let value = e.target.value;
+      this.setState( prevState => ({ feedingEventInfo :
+          {...prevState.feedingEventInfo, amountOfFood: value}
+      }), () => console.log(this.state.feedingEventInfo));
   }
 
   /**
@@ -183,10 +208,32 @@ class FormContainer extends Component {
                handleChange = {this.handleInput}
           /> : null } {/* Specific food for "Other" selection */}
 
+          <Select title={'Amount of food given'}
+            name={'amount'}
+            options = {this.state.foodAmountOptions}
+            value = {this.state.feedingEventInfo.amountOfFood}
+            placeholder = {'Select your best estimate in grams'}
+            handleChange = {this.handleFoodAmount}
+          /> {/* Food amount Selection */}
+
+          <Input inputType={'text'}
+            title={'Location and date'}
+            name={'location'}
+            value = {this.state.feedingEventInfo.location}
+            placeholder = {'Enter the location you fed the ducks'}
+            handleChange = {this.handleInput}
+          />
+
+          <DateTimePicker
+            name={"time"}
+            value={this.state.feedingEventInfo.time}
+            onChange={this.handleDate}
+          /><br/>
+
           <Button
-              action = {this.handleFormSubmit}
-              type = {'primary'}
-              title = {'Submit'}
+            action = {this.handleFormSubmit}
+            type = {'primary'}
+            title = {'Submit'}
             style={buttonStyle}
           /> { /*Submit */ }
 
