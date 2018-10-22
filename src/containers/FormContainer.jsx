@@ -11,20 +11,21 @@ class FormContainer extends Component {
 
     this.state = {
       feedingEventInfo: {
-          food: '',
-          specificFood: '',
-          foodType: '',
-          spcificFoodType: '',
-          currentFoodTypeOptions: null,
-          numberOfDucks: ''
+        numberOfDucks: '',
+        food: '',
+        specificFood: '',
+        foodType: '',
+        specificFoodType: '',
+        currentFoodTypeOptions: null
       },
 
+      valueRequiringSpecifics: 'Other',
       numberRangeOptions: ['1-5', '5-10', '10-15', '15-20', '20-30', '30-40', '40-50', '50+'],
       foodTypeOptionsMap: {
-        'Bread' : ['White', 'Whole wheat', 'Sourdough', 'Rye'],
+        'Bread' : ['White', 'Whole wheat', 'Sourdough', 'Rye', 'Other'],
         'Corn' : ['Canned', 'Frozen', 'Fresh'],
         'Duck pellets': null,
-        'Lettuce or other greens': [],
+        'Lettuce or other greens': null,
         'Oats' : ['Rolled', 'Instant'],
         'Peas' : ['Frozen', 'Fresh'],
         'Seeds' :  ['Bird seed', 'Other'],
@@ -50,6 +51,10 @@ class FormContainer extends Component {
       }), () => console.log(this.state.feedingEventInfo))
   }
 
+  /**
+   * Handle the food selection. This influences the specific food field and food type selection.
+   * We do not clear specific food/type fields when selection changes and let the POST handle that logic instead.
+   */
   handleFood(e) {
     let value = e.target.value;
     this.setState( prevState => ({ feedingEventInfo :
@@ -57,14 +62,19 @@ class FormContainer extends Component {
         }
     }), () => console.log(this.state.feedingEventInfo));
 
+    // Clear any selected food type value since we're about to set a new list of options
+    this.setState( prevState => ({ feedingEventInfo :
+      {...prevState.feedingEventInfo, foodType: ''
+      }
+    }), () => console.log(this.state.feedingEventInfo));
+
+    // Set new food type options based on the selected food
     this.setState( prevState => ({ feedingEventInfo :
       {...prevState.feedingEventInfo, currentFoodTypeOptions: this.state.foodTypeOptionsMap[value]
       }
-    }), () => console.log(this.state.feedingEventInfo))
+    }), () => console.log(this.state.feedingEventInfo));
 
-      // TODO clear food type value when selection changes
       // TODO make sure food type does not default to first item in the list when selection changes
-      // TODO add note about deliberately not clearing "other" values
   }
 
   handleFoodType(e) {
@@ -111,19 +121,19 @@ class FormContainer extends Component {
       e.preventDefault();
       this.setState({
         feedingEventInfo: {
+          numberOfDucks: '',
           food: '',
           specificFood: '',
           foodType: '',
-          spcificFoodType: '',
-          currentFoodTypeOptions: null,
-          numberOfDucks: ''
+          specificFoodType: '',
+          currentFoodTypeOptions: null
         },
       })
   }
 
   render() {
     return (
-    
+
         <form className="container-fluid" onSubmit={this.handleFormSubmit}>
 
           <Select title={'Number of ducks fed'}
@@ -142,13 +152,13 @@ class FormContainer extends Component {
             handleChange = {this.handleFood}
           /> {/* Duck food Selection */}
 
-          {/* TODO only show for Other selection */}
-          <Input inputType={'text'}
-           title= {'Please specify'}
-           name= {'specificFood'}
-           value={this.state.feedingEventInfo.specificFood}
-           handleChange = {this.handleInput}
-          /> {/* Specific food for "Other" selection */}
+          { this.state.feedingEventInfo.food == this.state.valueRequiringSpecifics ?
+            <Input inputType={'text'}
+               title={'Please specify'}
+               name={'specificFood'}
+               value={this.state.feedingEventInfo.specificFood}
+               handleChange={this.handleInput}
+            /> : null } {/* Specific food for "Other" selection */}
 
           { this.state.feedingEventInfo.currentFoodTypeOptions ?
               <Select title={'Please specify'}
@@ -157,32 +167,32 @@ class FormContainer extends Component {
                 value = {this.state.feedingEventInfo.foodType}
                 placeholder = {'Select'}
                 handleChange = {this.handleFoodType}
-              /> : null } {/* Specific type of food Selection */}
+          /> : null } {/* Specific type of food Selection */}
 
-          {/* TODO only show for Other selection */}
-          <Input inputType={'text'}
-           title= {'Please specify'}
-           name= {'spcificFoodType'}
-           value={this.state.feedingEventInfo.spcificFoodType}
-           handleChange = {this.handleInput}
-          /> {/* Specific food for "Other" selection */}
+          { this.state.feedingEventInfo.foodType == this.state.valueRequiringSpecifics ?
+              <Input inputType={'text'}
+               title= {'Please specify'}
+               name= {'specificFoodType'}
+               value={this.state.feedingEventInfo.specificFoodType}
+               handleChange = {this.handleInput}
+          /> : null } {/* Specific food for "Other" selection */}
 
-          <Button 
+          <Button
               action = {this.handleFormSubmit}
-              type = {'primary'} 
-              title = {'Submit'} 
+              type = {'primary'}
+              title = {'Submit'}
             style={buttonStyle}
           /> { /*Submit */ }
-          
-          <Button 
+
+          <Button
             action = {this.handleClearForm}
             type = {'secondary'}
             title = {'Clear'}
             style={buttonStyle}
           /> {/* Clear the form */}
-          
+
         </form>
-  
+
     );
   }
 }
