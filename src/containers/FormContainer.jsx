@@ -10,14 +10,14 @@ import Button from '../components/Button'
 /**
  * Confirm fields are filled in and have valid data
  */
-function validate(numberOfDucks, food, specificFood, foodType, specificFoodType, amountOfFood, location, time, valueRequiringSpecifics) {
+function validate(numberOfDucks, food, specificFood, foodType, specificFoodType, amountOfFood, location, time, valueRequiringSpecifics, currentFoodTypeOptions) {
   // true means invalid
   return {
     numberOfDucks: numberOfDucks.length === 0,
     food: food.length === 0,
     specificFood: food == valueRequiringSpecifics && specificFood.length === 0,
-    foodType: food != valueRequiringSpecifics && foodType.length === 0, //TODO only required if shown
-    specificFoodType: foodType == valueRequiringSpecifics && specificFoodType.length === 0,
+    foodType: currentFoodTypeOptions != null && foodType.length === 0,
+    specificFoodType: currentFoodTypeOptions != null && foodType == valueRequiringSpecifics && specificFoodType.length === 0,
     amountOfFood: amountOfFood.length === 0,
     location: location.length === 0,
     time: time.length === 0
@@ -178,7 +178,8 @@ class FormContainer extends Component {
       this.state.feedingEventInfo.amountOfFood,
       this.state.feedingEventInfo.location,
       this.state.feedingEventInfo.time,
-      this.state.valueRequiringSpecifics
+      this.state.valueRequiringSpecifics,
+      this.state.feedingEventInfo.currentFoodTypeOptions
     );
   }
 
@@ -255,7 +256,8 @@ class FormContainer extends Component {
       this.state.feedingEventInfo.amountOfFood,
       this.state.feedingEventInfo.location,
       this.state.feedingEventInfo.time,
-      this.state.valueRequiringSpecifics
+      this.state.valueRequiringSpecifics,
+      this.state.feedingEventInfo.currentFoodTypeOptions
     );
 
     return (
