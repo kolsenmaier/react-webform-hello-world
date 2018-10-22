@@ -7,11 +7,29 @@ import Input from '../components/Input';
 import Select from '../components/Select';
 import Button from '../components/Button'
 
+/**
+ * Confirm fields are filled in and have valid data
+ */
+function validate(numberOfDucks, food, specificFood, foodType, specificFoodType, amountOfFood, location, time, valueRequiringSpecifics) {
+  // true means invalid
+  return {
+    numberOfDucks: numberOfDucks.length === 0,
+    food: food.length === 0,
+    specificFood: food == valueRequiringSpecifics && specificFood.length === 0,
+    foodType: food != valueRequiringSpecifics && foodType.length === 0, //TODO only required if shown
+    specificFoodType: foodType == valueRequiringSpecifics && specificFoodType.length === 0,
+    amountOfFood: amountOfFood.length === 0,
+    location: location.length === 0,
+    time: time.length === 0
+  };
+}
+
 class FormContainer extends Component {  
   constructor(props) {
     super(props);
 
     this.state = {
+      // Current form entry info
       feedingEventInfo: {
         location: '',
         time: '',
@@ -24,6 +42,19 @@ class FormContainer extends Component {
         amountOfFood: ''
       },
 
+      // Track whether user has had a chance to enter information before performing validation
+      touched: {
+        location: false,
+        time: false,
+        numberOfDucks: false,
+        food: false,
+        specificFood: false,
+        foodType: false,
+        specificFoodType: false,
+        amountOfFood: false
+      },
+
+      // Dropdown options
       valueRequiringSpecifics: 'Other',
       numberRangeOptions: ['1-5', '5-10', '10-15', '15-20', '20-30', '30-40', '40-50', '50+'],
       foodTypeOptionsMap: {
@@ -40,7 +71,7 @@ class FormContainer extends Component {
     };
 
     this.handleDate = this.handleDate.bind(this);
-    this.handleRange = this.handleRange.bind(this);
+    this.handleNumDucks = this.handleNumDucks.bind(this);
     this.handleFood = this.handleFood.bind(this);
     this.handleFoodType = this.handleFoodType.bind(this);
     this.handleFoodAmount = this.handleFoodAmount.bind(this);
@@ -64,7 +95,7 @@ class FormContainer extends Component {
   /**
    * Handle selection of the number of ducks
    */
-  handleRange(e) {
+  handleNumDucks(e) {
     let value = e.target.value;
     this.setState( prevState => ({ feedingEventInfo :
         {...prevState.feedingEventInfo, numberOfDucks: value}
@@ -125,8 +156,49 @@ class FormContainer extends Component {
     }), () => console.log(this.state.feedingEventInfo));
   }
 
+  /**
+   * Track whether the user has focused the field
+   */
+  handleBlur = (field) => (e) => {
+    this.setState({
+      touched: { ...this.state.touched, [field]: true },
+    });
+  };
+
+  /**
+   * Validate form contents before submit
+   */
+  canBeSubmitted() {
+    const errors = validate(
+      this.state.feedingEventInfo.numberOfDucks,
+      this.state.feedingEventInfo.food,
+      this.state.feedingEventInfo.specificFood,
+      this.state.feedingEventInfo.foodType,
+      this.state.feedingEventInfo.specificFoodType,
+      this.state.feedingEventInfo.amountOfFood,
+      this.state.feedingEventInfo.location,
+      this.state.feedingEventInfo.time,
+      this.state.valueRequiringSpecifics
+    );
+  }
+
   handleFormSubmit(e) {
-      //TODO add some validation and sanitization
+    if (!this.canBeSubmitted()) {
+      e.preventDefault();
+      this.setState({
+        touched: {
+          location: true,
+          time: true,
+          numberOfDucks: true,
+          food: true,
+          specificFood: true,
+          foodType: true,
+          specificFoodType: true,
+          amountOfFood: true
+        },
+      });
+      return;
+    }
       // TODO send to app correctly
     e.preventDefault();
     let eventData = this.state.feedingEventInfo;
@@ -159,10 +231,33 @@ class FormContainer extends Component {
           currentFoodTypeOptions: null,
           amountOfFood: ''
         },
+
+        touched: {
+          location: false,
+          time: false,
+          numberOfDucks: false,
+          food: false,
+          specificFood: false,
+          foodType: false,
+          specificFoodType: false,
+          amountOfFood: false
+        },
       })
   }
 
   render() {
+    const errors = validate(
+      this.state.feedingEventInfo.numberOfDucks,
+      this.state.feedingEventInfo.food,
+      this.state.feedingEventInfo.specificFood,
+      this.state.feedingEventInfo.foodType,
+      this.state.feedingEventInfo.specificFoodType,
+      this.state.feedingEventInfo.amountOfFood,
+      this.state.feedingEventInfo.location,
+      this.state.feedingEventInfo.time,
+      this.state.valueRequiringSpecifics
+    );
+
     return (
 
         <form className="container-fluid" onSubmit={this.handleFormSubmit}>
@@ -172,55 +267,66 @@ class FormContainer extends Component {
             options = {this.state.numberRangeOptions}
             value = {this.state.feedingEventInfo.numberOfDucks}
             placeholder = {'Select Number Range'}
-            handleChange = {this.handleRange}
+            style={errors.numberOfDucks && this.state.touched.numberOfDucks ? error : null}
+            onBlur={this.handleBlur('numberOfDucks')}
+            handleChange = {this.handleNumDucks}
           /> {/* Duck num Selection */}
 
           <Select title={'Food given'}
-            name={'duckFood'}
+            name={'food'}
             options = {Object.keys(this.state.foodTypeOptionsMap)}
             value = {this.state.feedingEventInfo.food}
             placeholder = {'Select'}
+            style={errors.food && this.state.touched.food ? error : null}
+            onBlur={this.handleBlur('food')}
             handleChange = {this.handleFood}
           /> {/* Duck food Selection */}
 
           { this.state.feedingEventInfo.food == this.state.valueRequiringSpecifics ?
-            <Input inputType={'text'}
-               title={'Please specify'}
+            <Input inputType={'text'} title={'Please specify'}
                name={'specificFood'}
                value={this.state.feedingEventInfo.specificFood}
+               style={errors.specificFood && this.state.touched.specificFood ? error : null}
+               onBlur={this.handleBlur('specificFood')}
                handleChange={this.handleInput}
             /> : null } {/* Specific food for "Other" selection */}
 
           { this.state.feedingEventInfo.currentFoodTypeOptions ?
               <Select title={'Please specify'}
-                name={'duckFoodType'}
+                name={'foodType'}
                 options = {this.state.feedingEventInfo.currentFoodTypeOptions}
                 value = {this.state.feedingEventInfo.foodType}
                 placeholder = {'Select'}
+                style={errors.foodType && this.state.touched.foodType ? error : null}
+                onBlur={this.handleBlur('foodType')}
                 handleChange = {this.handleFoodType}
           /> : null } {/* Specific type of food Selection */}
 
           { this.state.feedingEventInfo.foodType == this.state.valueRequiringSpecifics ?
-              <Input inputType={'text'}
-               title= {'Please specify'}
+              <Input inputType={'text'} title= {'Please provide details'}
                name= {'specificFoodType'}
                value={this.state.feedingEventInfo.specificFoodType}
+               style={errors.specificFoodType && this.state.touched.specificFoodType ? error : null}
+               onBlur={this.handleBlur('specificFoodType')}
                handleChange = {this.handleInput}
           /> : null } {/* Specific food for "Other" selection */}
 
           <Select title={'Amount of food given'}
-            name={'amount'}
+            name={'amountOfFood'}
             options = {this.state.foodAmountOptions}
             value = {this.state.feedingEventInfo.amountOfFood}
             placeholder = {'Select your best estimate in grams'}
+            style={errors.amountOfFood && this.state.touched.amountOfFood ? error : null}
+            onBlur={this.handleBlur('amountOfFood')}
             handleChange = {this.handleFoodAmount}
           /> {/* Food amount Selection */}
 
-          <Input inputType={'text'}
-            title={'Location'}
+          <Input inputType={'text'} title={'Location'}
             name={'location'}
             value = {this.state.feedingEventInfo.location}
             placeholder = {'Enter the location you fed the ducks'}
+            style={errors.location && this.state.touched.location ? error : null}
+            onBlur={this.handleBlur('location')}
             handleChange = {this.handleInput}
           />
 
@@ -230,11 +336,12 @@ class FormContainer extends Component {
             {/*onChange={this.handleDate}*/}
           {/*/><br/>*/}
 
-          <Input inputType={'text'}
-            title={'Time'}
+          <Input inputType={'text'} title={'Time'}
             name={'time'}
             value = {this.state.feedingEventInfo.time}
             placeholder = {'Enter the approximate time in 24h e.g. 11:00, 14:30'}
+            style={errors.time && this.state.touched.time ? error : null}
+            onBlur={this.handleBlur('time')}
             handleChange = {this.handleInput}
           />
 
@@ -260,6 +367,11 @@ class FormContainer extends Component {
 
 const buttonStyle = {
   margin : '10px 10px 10px 10px'
+};
+
+const error = {
+  border: '2px solid red',
+  background: 'yellow'
 };
 
 export default FormContainer;
