@@ -10,17 +10,17 @@ import Button from '../components/Button'
 /**
  * Confirm fields are filled in and have valid data
  */
-function validate(numberOfDucks, food, specificFood, foodType, specificFoodType, amountOfFood, location, time, valueRequiringSpecifics, currentFoodTypeOptions) {
+function validate(feedingEventInfo) {
   // true means invalid
   return {
-    numberOfDucks: numberOfDucks.length === 0,
-    food: food.length === 0,
-    specificFood: food == valueRequiringSpecifics && specificFood.length === 0,
-    foodType: currentFoodTypeOptions != null && foodType.length === 0,
-    specificFoodType: currentFoodTypeOptions != null && foodType == valueRequiringSpecifics && specificFoodType.length === 0,
-    amountOfFood: amountOfFood.length === 0,
-    location: location.length === 0,
-    time: time != null
+    numberOfDucks: feedingEventInfo.numberOfDucks.length === 0,
+    food: feedingEventInfo.food.length === 0,
+    specificFood: feedingEventInfo.food == feedingEventInfo.valueRequiringSpecifics && feedingEventInfo.specificFood.length === 0,
+    foodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType.length === 0,
+    specificFoodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType == feedingEventInfo.valueRequiringSpecifics && feedingEventInfo.specificFoodType.length === 0,
+    amountOfFood: feedingEventInfo.amountOfFood.length === 0,
+    location: feedingEventInfo.location.length === 0,
+    time: feedingEventInfo.time != null
   };
 }
 
@@ -168,18 +168,7 @@ class FormContainer extends Component {
    * Validate form contents before submit
    */
   canBeSubmitted() {
-    const errors = validate(
-      this.state.feedingEventInfo.numberOfDucks,
-      this.state.feedingEventInfo.food,
-      this.state.feedingEventInfo.specificFood,
-      this.state.feedingEventInfo.foodType,
-      this.state.feedingEventInfo.specificFoodType,
-      this.state.feedingEventInfo.amountOfFood,
-      this.state.feedingEventInfo.location,
-      this.state.feedingEventInfo.time,
-      this.state.valueRequiringSpecifics,
-      this.state.feedingEventInfo.currentFoodTypeOptions
-    );
+    const errors = validate(this.state.feedingEventInfo);
   }
 
   handleFormSubmit(e) {
@@ -246,18 +235,7 @@ class FormContainer extends Component {
   }
 
   render() {
-    const errors = validate(
-      this.state.feedingEventInfo.numberOfDucks,
-      this.state.feedingEventInfo.food,
-      this.state.feedingEventInfo.specificFood,
-      this.state.feedingEventInfo.foodType,
-      this.state.feedingEventInfo.specificFoodType,
-      this.state.feedingEventInfo.amountOfFood,
-      this.state.feedingEventInfo.location,
-      this.state.feedingEventInfo.time,
-      this.state.valueRequiringSpecifics,
-      this.state.feedingEventInfo.currentFoodTypeOptions
-    );
+    const errors = validate(this.state.feedingEventInfo);
 
     return (
 
