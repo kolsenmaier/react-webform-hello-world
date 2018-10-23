@@ -20,7 +20,7 @@ function validate(numberOfDucks, food, specificFood, foodType, specificFoodType,
     specificFoodType: currentFoodTypeOptions != null && foodType == valueRequiringSpecifics && specificFoodType.length === 0,
     amountOfFood: amountOfFood.length === 0,
     location: location.length === 0,
-    time: time.length === 0
+    time: time != null
   };
 }
 
@@ -32,7 +32,7 @@ class FormContainer extends Component {
       // Current form entry info
       feedingEventInfo: {
         location: '',
-        time: '',
+        time: null,
         numberOfDucks: '',
         food: '',
         specificFood: '',
@@ -86,7 +86,6 @@ class FormContainer extends Component {
    * Handle datetime picker
    */
   handleDate(e) {
-    //let value = e.target.value;
     this.setState( prevState => ({ feedingEventInfo :
         {...prevState.feedingEventInfo, time: e}
     }), () => console.log(this.state.feedingEventInfo));
@@ -323,7 +322,7 @@ class FormContainer extends Component {
             handleChange = {this.handleFoodAmount}
           /> {/* Food amount Selection */}
 
-          <Input inputType={'text'} title={'Location'}
+          <Input inputType={'text'} title={'Location and time'}
             name={'location'}
             value = {this.state.feedingEventInfo.location}
             placeholder = {'Enter the location you fed the ducks'}
@@ -332,20 +331,13 @@ class FormContainer extends Component {
             handleChange = {this.handleInput}
           />
 
-          {/*<DateTimePicker*/}
-            {/*name={"time"}*/}
-            {/*value={this.state.feedingEventInfo.time}*/}
-            {/*onChange={this.handleDate}*/}
-          {/*/><br/>*/}
-
-          <Input inputType={'text'} title={'Time'}
-            name={'time'}
-            value = {this.state.feedingEventInfo.time}
-            placeholder = {'Enter the approximate time in 24h e.g. 11:00, 14:30'}
+          <DateTimePicker
+            name={"time"}
+            value={this.state.feedingEventInfo.time}
             style={errors.time && this.state.touched.time ? error : null}
             onBlur={this.handleBlur('time')}
-            handleChange = {this.handleInput}
-          />
+            onChange={this.handleDate}
+          /><br/><br/>
 
           <Button
             action = {this.handleFormSubmit}
@@ -372,8 +364,7 @@ const buttonStyle = {
 };
 
 const error = {
-  border: '2px solid red',
-  background: 'yellow'
+  border: '3px solid salmon'
 };
 
 export default FormContainer;
