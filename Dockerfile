@@ -13,5 +13,8 @@ COPY package.json /usr/src/app/package.json
 RUN npm install
 RUN npm install react-scripts@1.1.1 -g
 
+# add application files
+ADD . /usr/src/app/public
+
 # start app
 CMD ["npm", "start"]
