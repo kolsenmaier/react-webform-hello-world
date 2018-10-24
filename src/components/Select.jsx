@@ -1,14 +1,17 @@
 import React from 'react';
 
 const Select = (props) => {
-	return(<div className="form-group">
+	return(<div className="form-group customerror">
 			<label htmlFor={props.name}> {props.title} </label>
+		    {props.required ? <abbr title="required"> *</abbr> : ''}
 		    <select
 		      id = {props.name}
 		      name={props.name}
 		      value={props.value}
+			  onBlur={props.handleBlur}
 		      onChange={props.handleChange}
-		      className="form-control">
+		      className="form-control"
+			  style={props.hasErrors ? customerror : null}>
 		      <option value="" disabled>{props.placeholder}</option>
 		      {props.options.map(option => {
 		        return (
@@ -19,7 +22,12 @@ const Select = (props) => {
 		        );
 		      })}
 		    </select>
-	  </div>)
-	};
+	  </div>
+	)
+};
+
+const customerror = {
+    border: '3px solid salmon'
+};
 
 export default Select;
