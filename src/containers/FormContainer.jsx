@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import DateTimePicker from 'react-datetime-picker';
-import '../react-datetime.css';
 
 /* Import Components */
 import Input from '../components/Input';
 import Select from '../components/Select';
-import Button from '../components/Button'
+import Button from '../components/Button';
+import CustomDateTimePicker from '../components/CustomDateTimePicker';
 
 /**
  * Confirm fields are filled in and have valid data
@@ -20,7 +19,7 @@ function validate(feedingEventInfo) {
     specificFoodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType == feedingEventInfo.valueRequiringSpecifics && feedingEventInfo.specificFoodType.length === 0,
     amountOfFood: feedingEventInfo.amountOfFood.length === 0,
     location: feedingEventInfo.location.length === 0,
-    time: feedingEventInfo.time != null
+    time: feedingEventInfo.time === null
   };
 }
 
@@ -217,7 +216,7 @@ class FormContainer extends Component {
       this.setState({
         feedingEventInfo: {
           location: '',
-          time: '',
+          time: null,
           numberOfDucks: '',
           food: '',
           specificFood: '',
@@ -251,7 +250,7 @@ class FormContainer extends Component {
           <fieldset>
             <legend>General information</legend>
 
-            <Input inputType={'text'} title={'Location and time'} //TODO update label once datetimepicker updated
+            <Input inputType={'text'} title={'Location'}
               name={'location'}
               required={true}
               value = {this.state.feedingEventInfo.location}
@@ -261,13 +260,14 @@ class FormContainer extends Component {
               handleChange = {this.handleInput}
             /> {/* Location input */}
 
-            <DateTimePicker // TODO customize input and appearance, add label
+            <CustomDateTimePicker title={'Time'}
               name={"time"}
+              required={true}
               value={this.state.feedingEventInfo.time}
               hasErrors={errors.time && this.state.touched.time}
-              onBlur={this.handleBlur('time')}
-              onChange={this.handleDate}
-            /><br/><br/> {/* Datetime picker */}
+              handleBlur={this.handleBlur('time')}
+              handleChange={this.handleDate}
+            /> {/* Datetime picker */}
 
             <Select title={'Number of ducks'}
               name={'numberOfDucks'}

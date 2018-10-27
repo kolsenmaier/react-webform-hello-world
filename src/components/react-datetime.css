@@ -5,6 +5,9 @@
 .rdt {
     position: relative;
 }
+.rdt .customerror {
+    border: 3px solid salmon;
+}
 .rdtPicker {
     display: none;
     position: absolute;
