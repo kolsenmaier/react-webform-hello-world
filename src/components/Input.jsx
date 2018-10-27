@@ -3,8 +3,7 @@ import React from 'react';
 const Input = (props) => {
 	return (  
       <div className="form-group">
-        <label htmlFor={props.name} className="form-label">{props.title}</label>
-        {props.required ? <abbr title="required"> *</abbr> : ''}
+        <label htmlFor={props.name} className="form-label">{props.title}{props.required ? <abbr title="required"> *</abbr> : ''}</label>
         <input
           className="form-control"
           id={props.name}

@@ -246,89 +246,100 @@ class FormContainer extends Component {
     return (
 
         <form className="container-fluid" onSubmit={this.handleFormSubmit}>
+          <p>Required fields are followed by <abbr title="required"> *</abbr>.</p>
 
-          <Select title={'Number of ducks fed'}
-            name={'numberOfDucks'}
-            required={true}
-            options = {this.state.numberRangeOptions}
-            value = {this.state.feedingEventInfo.numberOfDucks}
-            placeholder = {'Select Number Range'}
-            hasErrors={errors.numberOfDucks && this.state.touched.numberOfDucks}
-            handleBlur={this.handleBlur('numberOfDucks')}
-            handleChange = {this.handleNumDucks}
-          /> {/* Duck num Selection */}
+          <fieldset>
+            <legend>General information</legend>
 
-          <Select title={'Food given'}
-            name={'food'}
-            required={true}
-            options = {Object.keys(this.state.foodTypeOptionsMap)}
-            value = {this.state.feedingEventInfo.food}
-            placeholder = {'Select'}
-            hasErrors={errors.food && this.state.touched.food}
-            handleBlur={this.handleBlur('food')}
-            handleChange = {this.handleFood}
-          /> {/* Duck food Selection */}
+            <Input inputType={'text'} title={'Location and time'} //TODO update label once datetimepicker updated
+              name={'location'}
+              required={true}
+              value = {this.state.feedingEventInfo.location}
+              placeholder = {'Enter the location you fed the ducks'}
+              hasErrors={errors.location && this.state.touched.location}
+              handleBlur={this.handleBlur('location')}
+              handleChange = {this.handleInput}
+            /> {/* Location input */}
 
-          { this.state.feedingEventInfo.food == this.state.valueRequiringSpecifics ?
+            <DateTimePicker // TODO customize input and appearance, add label
+              name={"time"}
+              value={this.state.feedingEventInfo.time}
+              hasErrors={errors.time && this.state.touched.time}
+              onBlur={this.handleBlur('time')}
+              onChange={this.handleDate}
+            /><br/><br/> {/* Datetime picker */}
+
+            <Select title={'Number of ducks'}
+              name={'numberOfDucks'}
+              required={true}
+              options = {this.state.numberRangeOptions}
+              value = {this.state.feedingEventInfo.numberOfDucks}
+              placeholder = {'Select number range'}
+              hasErrors={errors.numberOfDucks && this.state.touched.numberOfDucks}
+              handleBlur={this.handleBlur('numberOfDucks')}
+              handleChange = {this.handleNumDucks}
+            /> {/* Duck num Selection */}
+
+          </fieldset>
+
+          <fieldset>
+            <legend>Food given</legend>
+
+            <Select title={'Type of food'}
+              name={'food'}
+              required={true}
+              options = {Object.keys(this.state.foodTypeOptionsMap)}
+              value = {this.state.feedingEventInfo.food}
+              placeholder = {'Select'}
+              hasErrors={errors.food && this.state.touched.food}
+              handleBlur={this.handleBlur('food')}
+              handleChange = {this.handleFood}
+            /> {/* Duck food Selection */}
+
+            { this.state.feedingEventInfo.food == this.state.valueRequiringSpecifics ?
             <Input inputType={'text'} title={'Please specify'}
-               name={'specificFood'}
-               required={true}
-               value={this.state.feedingEventInfo.specificFood}
-               hasErrors={errors.specificFood && this.state.touched.specificFood}
-               handleBlur={this.handleBlur('specificFood')}
-               handleChange={this.handleInput}
+              name={'specificFood'}
+              required={true}
+              value={this.state.feedingEventInfo.specificFood}
+              hasErrors={errors.specificFood && this.state.touched.specificFood}
+              handleBlur={this.handleBlur('specificFood')}
+              handleChange={this.handleInput}
             /> : null } {/* Specific food for "Other" selection */}
 
-          { this.state.feedingEventInfo.currentFoodTypeOptions ?
-              <Select title={'Please specify'}
-                name={'foodType'}
-                required={true}
-                options = {this.state.feedingEventInfo.currentFoodTypeOptions}
-                value = {this.state.feedingEventInfo.foodType}
-                placeholder = {'Select'}
-                hasErrors={errors.foodType && this.state.touched.foodType}
-                handleBlur={this.handleBlur('foodType')}
-                handleChange = {this.handleFoodType}
-          /> : null } {/* Specific type of food Selection */}
+            { this.state.feedingEventInfo.currentFoodTypeOptions ?
+            <Select title={'Please specify'}
+              name={'foodType'}
+              required={true}
+              options = {this.state.feedingEventInfo.currentFoodTypeOptions}
+              value = {this.state.feedingEventInfo.foodType}
+              placeholder = {'Select'}
+              hasErrors={errors.foodType && this.state.touched.foodType}
+              handleBlur={this.handleBlur('foodType')}
+              handleChange = {this.handleFoodType}
+            /> : null } {/* Specific type of food Selection */}
 
-          { this.state.feedingEventInfo.foodType == this.state.valueRequiringSpecifics ?
-              <Input inputType={'text'} title= {'Please provide details'}
-               name= {'specificFoodType'}
-               required={true}
-               value={this.state.feedingEventInfo.specificFoodType}
-               hasErrors={errors.specificFoodType && this.state.touched.specificFoodType}
-               handleBlur={this.handleBlur('specificFoodType')}
-               handleChange = {this.handleInput}
-          /> : null } {/* Specific food for "Other" selection */}
+            { this.state.feedingEventInfo.foodType == this.state.valueRequiringSpecifics ?
+            <Input inputType={'text'} title= {'Please provide details'}
+              name= {'specificFoodType'}
+              required={true}
+              value={this.state.feedingEventInfo.specificFoodType}
+              hasErrors={errors.specificFoodType && this.state.touched.specificFoodType}
+              handleBlur={this.handleBlur('specificFoodType')}
+              handleChange = {this.handleInput}
+            /> : null } {/* Specific food for "Other" selection */}
 
-          <Select title={'Amount of food given'}
-            name={'amountOfFood'}
-            required={true}
-            options = {this.state.foodAmountOptions}
-            value = {this.state.feedingEventInfo.amountOfFood}
-            placeholder = {'Select your best estimate in grams'}
-            hasErrors={errors.amountOfFood && this.state.touched.amountOfFood}
-            handleBlur={this.handleBlur('amountOfFood')}
-            handleChange = {this.handleFoodAmount}
-          /> {/* Food amount Selection */}
+            <Select title={'Amount'}
+              name={'amountOfFood'}
+              required={true}
+              options = {this.state.foodAmountOptions}
+              value = {this.state.feedingEventInfo.amountOfFood}
+              placeholder = {'Select your best estimate in grams'}
+              hasErrors={errors.amountOfFood && this.state.touched.amountOfFood}
+              handleBlur={this.handleBlur('amountOfFood')}
+              handleChange = {this.handleFoodAmount}
+            /> {/* Food amount Selection */}
 
-          <Input inputType={'text'} title={'Location and time'}
-            name={'location'}
-            required={true}
-            value = {this.state.feedingEventInfo.location}
-            placeholder = {'Enter the location you fed the ducks'}
-            hasErrors={errors.location && this.state.touched.location}
-            handleBlur={this.handleBlur('location')}
-            handleChange = {this.handleInput}
-          /> {/* Location input */}
-
-          <DateTimePicker // TODO customize input and appearance
-            name={"time"}
-            value={this.state.feedingEventInfo.time}
-            hasErrors={errors.time && this.state.touched.time}
-            onBlur={this.handleBlur('time')}
-            onChange={this.handleDate}
-          /><br/><br/> {/* Datetime picker */}
+          </fieldset>
 
           <Button
             action = {this.handleFormSubmit}
@@ -345,7 +356,6 @@ class FormContainer extends Component {
           /> {/* Clear the form */}
 
         </form>
-
     );
   }
 }

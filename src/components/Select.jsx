@@ -2,8 +2,7 @@ import React from 'react';
 
 const Select = (props) => {
 	return(<div className="form-group customerror">
-			<label htmlFor={props.name}> {props.title} </label>
-		    {props.required ? <abbr title="required"> *</abbr> : ''}
+			<label htmlFor={props.name}> {props.title}{props.required ? <abbr title="required"> *</abbr> : ''}</label>
 		    <select
 		      id = {props.name}
 		      name={props.name}
