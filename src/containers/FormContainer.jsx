@@ -9,14 +9,14 @@ import CustomDateTimePicker from '../components/CustomDateTimePicker';
 /**
  * Confirm fields are filled in and have valid data
  */
-function validate(feedingEventInfo) {
+function validate(feedingEventInfo, valueRequiringSpecifics) {
   // true means invalid
   return {
     numberOfDucks: feedingEventInfo.numberOfDucks.length === 0,
     food: feedingEventInfo.food.length === 0,
-    specificFood: feedingEventInfo.food == feedingEventInfo.valueRequiringSpecifics && feedingEventInfo.specificFood.length === 0,
+    specificFood: feedingEventInfo.food === valueRequiringSpecifics && feedingEventInfo.specificFood.length === 0,
     foodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType.length === 0,
-    specificFoodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType == feedingEventInfo.valueRequiringSpecifics && feedingEventInfo.specificFoodType.length === 0,
+    specificFoodType: feedingEventInfo.currentFoodTypeOptions != null && feedingEventInfo.foodType === valueRequiringSpecifics && feedingEventInfo.specificFoodType.length === 0,
     amountOfFood: feedingEventInfo.amountOfFood.length === 0,
     location: feedingEventInfo.location.length === 0,
     time: feedingEventInfo.time === null
@@ -167,7 +167,7 @@ class FormContainer extends Component {
    * Validate form contents before submit
    */
   canBeSubmitted() {
-    const errors = validate(this.state.feedingEventInfo);
+    const errors = validate(this.state.feedingEventInfo, this.state.valueRequiringSpecifics);
   }
 
   /**
@@ -176,15 +176,16 @@ class FormContainer extends Component {
   handleFormSubmit(e) {
     if (!this.canBeSubmitted()) {
       e.preventDefault();
+      // Show errors in all currently visible required fields
       this.setState({
         touched: {
           location: true,
           time: true,
           numberOfDucks: true,
           food: true,
-          specificFood: true,
-          foodType: true,
-          specificFoodType: true,
+          specificFood: this.state.feedingEventInfo.food === this.state.valueRequiringSpecifics,
+          foodType: this.state.feedingEventInfo.food.length !== 0 && this.state.feedingEventInfo.food !== this.state.valueRequiringSpecifics,
+          specificFoodType: this.state.feedingEventInfo.foodType === this.state.valueRequiringSpecifics,
           amountOfFood: true
         },
       });
@@ -240,7 +241,7 @@ class FormContainer extends Component {
   }
 
   render() {
-    const errors = validate(this.state.feedingEventInfo);
+    const errors = validate(this.state.feedingEventInfo, this.state.valueRequiringSpecifics);
 
     return (
 
@@ -296,7 +297,7 @@ class FormContainer extends Component {
               handleChange = {this.handleFood}
             /> {/* Duck food Selection */}
 
-            { this.state.feedingEventInfo.food == this.state.valueRequiringSpecifics ?
+            { this.state.feedingEventInfo.food === this.state.valueRequiringSpecifics ?
             <Input inputType={'text'} title={'Please specify'}
               name={'specificFood'}
               required={true}
@@ -318,7 +319,7 @@ class FormContainer extends Component {
               handleChange = {this.handleFoodType}
             /> : null } {/* Specific type of food Selection */}
 
-            { this.state.feedingEventInfo.foodType == this.state.valueRequiringSpecifics ?
+            { this.state.feedingEventInfo.foodType === this.state.valueRequiringSpecifics ?
             <Input inputType={'text'} title= {'Please provide details'}
               name= {'specificFoodType'}
               required={true}

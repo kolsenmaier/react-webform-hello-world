@@ -1,21 +1,22 @@
-# base image
+# Base image
 FROM node:9.6.1
 
-# set working directory
+# Set working directory
 RUN mkdir /usr/app
 WORKDIR /usr/app
 
-# add `/usr/app/node_modules/.bin` to $PATH
+# Add `/usr/app/node_modules/.bin` to $PATH
 ENV PATH /usr/app/node_modules/.bin:$PATH
 
-# install and cache app dependencies
+# Install and cache app dependencies
+# This way npm install only runs if package.json has changes
 COPY package.json /usr/app/package.json
 RUN npm install
 RUN npm install react-scripts@1.1.1 -g
 
-# add application files
+# Add application files
 COPY ./public /usr/app/public
 COPY ./src /usr/app/src
 
-# start app
+# Start app
 CMD ["npm", "start"]
