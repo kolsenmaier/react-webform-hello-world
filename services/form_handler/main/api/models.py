@@ -12,3 +12,12 @@ class Food(db.Model):
         self.category = category
         self.type = type
         self.amount = amount
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'category': self.category,
+            'type': self.type,
+            'amount': self.amount,
+            'isvisible': self.isvisible
+        }
