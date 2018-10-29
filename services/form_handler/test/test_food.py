@@ -26,7 +26,7 @@ class TestFoodCategoryService(BaseTestCase):
     def test_food_categories(self):
         create_food_category('Bread')
         with self.client:
-            response = self.client.get('/food/categories')
+            response = self.client.get('/api/food/categories')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['categories']), 1)
@@ -37,7 +37,7 @@ class TestFoodCategoryService(BaseTestCase):
         create_food_category('Bread')
         create_food_category('Other')
         with self.client:
-            response = self.client.get('/food/categories')
+            response = self.client.get('/api/food/categories')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['categories']), 2)
@@ -51,7 +51,7 @@ class TestFoodTypeService(BaseTestCase):
         # TODO
         create_food_type('Rye', 1)
         with self.client:
-            response = self.client.get('/food/types')
+            response = self.client.get('/api/food/types')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
