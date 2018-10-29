@@ -23,8 +23,8 @@ services:
     environment:
       - FLASK_ENV=development
       - APP_SETTINGS=main.config.DevelopmentConfig
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/food_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/food_test
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/db_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/db_test
     depends_on:
       - db
 

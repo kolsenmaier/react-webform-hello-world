@@ -1,3 +1,3 @@
-CREATE DATABASE food_prod;
-CREATE DATABASE food_dev;
-CREATE DATABASE food_test;
+CREATE DATABASE db_prod;
+CREATE DATABASE db_dev;
+CREATE DATABASE db_test;

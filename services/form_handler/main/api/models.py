@@ -1,23 +1,34 @@
 from main import db
 
-class Food(db.Model):
-    __tablename__ = 'food'
+class FoodCategory(db.Model):
+    __tablename__ = 'foodcategory'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    category = db.Column(db.String(128), nullable=False)
-    type = db.Column(db.String(128), nullable=False)
-    amount = db.Column(db.String(128), nullable=False)
-    isvisible = db.Column(db.Boolean(), default=False, nullable=False)
+    name = db.Column(db.String(128), nullable=False)
 
-    def __init__(self, category, type, amount):
-        self.category = category
-        self.type = type
-        self.amount = amount
+    def __init__(self, name):
+        self.name = name
 
     def to_json(self):
         return {
             'id': self.id,
-            'category': self.category,
+            'name': self.name
+        }
+
+class FoodType(db.Model):
+    __tablename__ = 'foodtype'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    type = db.Column(db.String(128), nullable=False)
+    catid = db.Column(db.Integer, nullable=False)
+    isvisible = db.Column(db.Boolean(), default=False, nullable=False)
+
+    def __init__(self, type, catid):
+        self.type = type
+        self.catid = catid
+
+    def to_json(self):
+        return {
+            'id': self.id,
             'type': self.type,
-            'amount': self.amount,
+            'catid': self.catid,
             'isvisible': self.isvisible
         }

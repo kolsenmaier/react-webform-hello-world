@@ -1,7 +1,8 @@
 import unittest
 from flask.cli import FlaskGroup
 from main import create_app, db
-from main.api.models import Food
+from main.api.models import FoodCategory
+from main.api.models import FoodType
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
@@ -14,8 +15,9 @@ def recreate_db():
 
 @cli.command()
 def seed_db():
-    db.session.add(Food(category='Bread', type='Rye', amount='10g'))
-    db.session.add(Food(category='Bread', type='White', amount='50g'))
+    db.session.add(FoodCategory(name='Bread'))
+    db.session.add(FoodCategory(name='Other'))
+    db.session.add(FoodType(type='Rye', catid=1))
     db.session.commit()
 
 @cli.command()

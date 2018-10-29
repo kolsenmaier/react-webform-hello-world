@@ -1,45 +1,62 @@
 import json
 import unittest
 from main import db
-from main.api.models import Food
+from main.api.models import FoodCategory
+from main.api.models import FoodType
 from test.base import BaseTestCase
 
-# Helper function to add food entries to the DB
-def create_food(category, type, amount):
-    food = Food(category=category, type=type, amount=amount)
-    db.session.add(food)
+# Helper function to add food category entries to the DB
+def create_food_category(name):
+    category = FoodCategory(name=name)
+    db.session.add(category)
     db.session.commit()
-    return food
+    return category
 
-# Tests for the Food Service
-class TestFoodService(BaseTestCase):
-    # Basic happy path, ensure the /food route behaves correctly
-    def test_food(self):
-        create_food('Bread', 'Rye', '10g')
+# Helper function to add food type entries to the DB
+def create_food_type(type, category):
+    # TODO lookup catid
+    type = FoodType(type=type, catid=category)
+    db.session.add(type)
+    db.session.commit()
+    return type
+
+# Tests for the Food Category Service
+class TestFoodCategoryService(BaseTestCase):
+    # Basic happy path, ensure the /food/categories route behaves correctly
+    def test_food_categories(self):
+        create_food_category('Bread')
         with self.client:
-            response = self.client.get('/food')
+            response = self.client.get('/food/categories')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(data['food']), 1)
-            self.assertIn('Bread', data['food'][0]['category'])
-            self.assertIn('Rye', data['food'][0]['type'])
-            self.assertIn('10g', data['food'][0]['amount'])
+            self.assertEqual(len(data['categories']), 1)
+            self.assertIn('Bread', data['categories'][0]['name'])
 
-    # Ensure the /food route behaves correctly for multiple entries
-    def test_multiple_food(self):
-        create_food('Bread', 'Rye', '10g')
-        create_food('Bread', 'Sourdough', '20g')
+    # Ensure the /food/categories route behaves correctly for multiple entries
+    def test_multiple_categories(self):
+        create_food_category('Bread')
+        create_food_category('Other')
         with self.client:
-            response = self.client.get('/food')
+            response = self.client.get('/food/categories')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(data['food']), 2)
-            self.assertIn('Bread', data['food'][0]['category'])
-            self.assertIn('Rye', data['food'][0]['type'])
-            self.assertIn('10g', data['food'][0]['amount'])
-            self.assertIn('Bread', data['food'][1]['category'])
-            self.assertIn('Sourdough', data['food'][1]['type'])
-            self.assertIn('20g', data['food'][1]['amount'])
+            self.assertEqual(len(data['categories']), 2)
+            self.assertIn('Bread', data['categories'][0]['name'])
+            self.assertIn('Other', data['categories'][1]['name'])
+
+# Tests for the Food Type Service
+class TestFoodTypeService(BaseTestCase):
+    # Basic happy path, ensure the /food/types route behaves correctly
+    def test_food_types(self):
+        # TODO
+        create_food_type('Rye', 1)
+        with self.client:
+            response = self.client.get('/food/types')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['types']), 1)
+            self.assertIn('Rye', data['types'][0]['type'])
+            self.assertEquals(1, data['types'][0]['catid'])
 
 if __name__ == '__main__':
     unittest.main()

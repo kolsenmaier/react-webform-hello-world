@@ -17,8 +17,10 @@ def create_app(script_info=None):
     db.init_app(app)
 
     # Register blueprints
-    from main.api.food import food_blueprint
-    app.register_blueprint(food_blueprint)
+    from main.api.foodcategories import food_categories_blueprint
+    app.register_blueprint(food_categories_blueprint)
+    from main.api.foodtypes import food_types_blueprint
+    app.register_blueprint(food_types_blueprint)
 
     # Shell context for flask cli
     @app.shell_context_processor
