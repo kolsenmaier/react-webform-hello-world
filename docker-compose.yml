@@ -1,6 +1,30 @@
 version: '3.5'
 
 services:
+  form-handler:
+    container_name: form-handler
+    build:
+      context: ./services/form_handler
+      dockerfile: Dockerfile
+    volumes:
+      - './services/form_handler:/usr/app'
+    ports:
+      - '5000:5000'
+    environment:
+      - FLASK_APP=main/__init__.py
+      - FLASK_ENV=development
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '80:80'
+    depends_on:
+      - form-handler
+
   web-form:
     container_name: web-form
     build:
@@ -13,3 +37,5 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=development
+    depends_on:
+      - form-handler
