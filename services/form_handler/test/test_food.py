@@ -13,9 +13,8 @@ def create_food_category(name):
     return category
 
 # Helper function to add food type entries to the DB
-def create_food_type(type, category):
-    # TODO lookup catid
-    type = FoodType(type=type, catid=category)
+def create_food_type(type, catid):
+    type = FoodType(type=type, catid=catid)
     db.session.add(type)
     db.session.commit()
     return type
@@ -48,15 +47,16 @@ class TestFoodCategoryService(BaseTestCase):
 class TestFoodTypeService(BaseTestCase):
     # Basic happy path, ensure the /food/types route behaves correctly
     def test_food_types(self):
-        # TODO
-        create_food_type('Rye', 1)
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id)
         with self.client:
             response = self.client.get('/api/food/types')
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
-            self.assertIn('Rye', data['types'][0]['type'])
-            self.assertEquals(1, data['types'][0]['catid'])
+            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertEquals(category.id, data['types'][0]['catid'])
+            self.assertEquals(False, data['types'][0]['isvisible'])
 
 if __name__ == '__main__':
     unittest.main()
