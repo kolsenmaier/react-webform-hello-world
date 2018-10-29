@@ -1,8 +1,10 @@
 import unittest
 from flask.cli import FlaskGroup
-from main import app, db
+from main import create_app, db
+from main.api.models import Food
 
-cli = FlaskGroup(app)
+app = create_app()
+cli = FlaskGroup(create_app=create_app)
 
 @cli.command()
 def recreate_db():
