@@ -7,7 +7,7 @@
 .idea
 
 # dependencies
-/node_modules
+/web_form/node_modules
 
 # testing
 /coverage
@@ -25,5 +25,3 @@ __pycache__
 env
 
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
