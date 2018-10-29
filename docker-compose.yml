@@ -28,10 +28,10 @@ services:
   web-form:
     container_name: web-form
     build:
-      context: .
+      context: ./web_form
       dockerfile: Dockerfile
     volumes:
-      - '.:/usr/app'
+      - './web_form:/usr/app'
       - '/usr/app/node_modules'
     ports:
       - '3000:3000'
