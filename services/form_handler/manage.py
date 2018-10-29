@@ -13,6 +13,12 @@ def recreate_db():
     db.session.commit()
 
 @cli.command()
+def seed_db():
+    db.session.add(Food(category='Bread', type='Rye', amount='10g'))
+    db.session.add(Food(category='Bread', type='White', amount='50g'))
+    db.session.commit()
+
+@cli.command()
 def test():
     """ Runs the tests without code coverage"""
     tests = unittest.TestLoader().discover('test', pattern='test*.py')
