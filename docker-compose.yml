@@ -28,17 +28,17 @@ services:
     depends_on:
       - db
 
-#  nginx:
-#    container_name: nginx
-#    build:
-#      context: ./services/nginx
-#      dockerfile: Dockerfile
-#    restart: always
-#    ports:
-#      - '80:80'
-#    depends_on:
-#      - form-handler
-#      - web-form
+  nginx:
+    container_name: nginx
+    build:
+      context: ./services/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - '80:80'
+    depends_on:
+      - form-handler
+      - web-form
 
   web-form:
     container_name: web-form
