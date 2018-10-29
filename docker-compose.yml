@@ -1,6 +1,16 @@
 version: '3.5'
 
 services:
+  db:
+    build:
+      context: ./services/form_handler/main/db
+      dockerfile: Dockerfile
+    ports:
+      - 5435:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
   form-handler:
     container_name: form-handler
     build:
@@ -13,18 +23,23 @@ services:
     environment:
       - FLASK_APP=main/__init__.py
       - FLASK_ENV=development
-
-  nginx:
-    container_name: nginx
-    build:
-      context: ./services/nginx
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - '80:80'
+      - APP_SETTINGS=main.config.DevelopmentConfig
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/food_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@db:5432/food_test
     depends_on:
-      - form-handler
-      - web-form
+      - db
+
+#  nginx:
+#    container_name: nginx
+#    build:
+#      context: ./services/nginx
+#      dockerfile: Dockerfile
+#    restart: always
+#    ports:
+#      - '80:80'
+#    depends_on:
+#      - form-handler
+#      - web-form
 
   web-form:
     container_name: web-form

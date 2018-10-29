@@ -1,0 +1,3 @@
+CREATE DATABASE food_prod;
+CREATE DATABASE food_dev;
+CREATE DATABASE food_test;
