@@ -17,7 +17,10 @@ def recreate_db():
 def seed_db():
     db.session.add(FoodCategory(name='Bread'))
     db.session.add(FoodCategory(name='Other'))
-    db.session.add(FoodType(type='Rye', catid=1))
+    db.session.commit()
+    db.session.add(FoodType(type='Rye', catid=1, isvisible=True))
+    db.session.add(FoodType(type='White', catid=1, isvisible=False))
+    db.session.add(FoodType(type='Raisins', catid=2, isvisible=True))
     db.session.commit()
 
 @cli.command()
