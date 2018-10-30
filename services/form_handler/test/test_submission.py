@@ -53,11 +53,145 @@ class TestSubmissionService(BaseTestCase):
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 201)
         self.assertIn('Successfully created submission.', data['status'])
-        self.assertEquals(location.id, data['submission']['location_id'])
-        self.assertEquals(type.id, data['submission']['foodtype_id'])
-        self.assertEquals(20, data['submission']['numducks'])
-        self.assertEquals(30, data['submission']['grams'])
+        self.assertEqual(location.id, data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route behaves correctly when DB has more data
+    def test_submission_id_lookup(self):
+        create_food_category('Other')
+        create_food_category('Seeds')
+        category = create_food_category('Bread')
+        create_food_type('White', category.id, True)
+        create_food_type('Sourdough', category.id, True)
+        type = create_food_type('Rye', category.id, True)
+        create_location('Rithet\'s Bog')
+        location = create_location('Beacon Hill Park')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': location.name,
+                    'category_id': category.id,
+                    'food_type': type.type,
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertEqual(location.id, data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route behaves correctly when foodtype does not pre-exist
+    def test_submission_new_foodtype(self):
+        category = create_food_category('Bread')
+        location = create_location('Beacon Hill Park')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': location.name,
+                    'category_id': category.id,
+                    'food_type': 'Sourdough',
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertEqual(location.id, data['submission']['location_id'])
+        self.assertIsNotNone(data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route behaves correctly when location does not pre-exist
+    def test_submission_new_location(self):
+        category = create_food_category('Bread')
+        type = create_food_type('Rye', category.id, True)
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': 'Swan Lake',
+                    'category_id': category.id,
+                    'food_type': type.type,
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertIsNotNone(data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route behaves correctly when foodtype and location do not pre-exist
+    def test_submission_new_foodtype_location(self):
+        category = create_food_category('Bread')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': 'Swan Lake',
+                    'category_id': category.id,
+                    'food_type': 'Multigrain',
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertIsNotNone(data['submission']['location_id'])
+        self.assertIsNotNone(data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route fails when no location provided
+    def test_submission_missing_location(self):
+        category = create_food_category('Bread')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'category_id': category.id,
+                    'food_type': 'Multigrain',
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(data['errors']), 1)
+        self.assertIn('Invalid payload.', data['errors'][0])
 
 if __name__ == '__main__':
     unittest.main()
