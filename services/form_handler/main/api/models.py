@@ -30,7 +30,8 @@ class FoodType(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'category_id': self.catid
+            'category_id': self.catid,
+            'category_name': FoodCategory.query.filter_by(id=self.catid).first().name
         }
 
 class Location(db.Model):

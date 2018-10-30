@@ -55,6 +55,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
+            self.assertIn(category.name, data['types'][0]['category_name'])
 
     # Ensure the /food/types route behaves correctly for multiple entries
     def test_multiple_types(self):
@@ -68,8 +69,10 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 2)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
+            self.assertIn(category.name, data['types'][0]['category_name'])
             self.assertIn('Raisins', data['types'][1]['name'])
             self.assertEqual(category.id, data['types'][1]['category_id'])
+            self.assertIn(category.name, data['types'][1]['category_name'])
 
     # Ensure the /food/types route does not return entries with isvisible=false
     def test_invisible_types(self):
@@ -83,6 +86,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Raisins', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
+            self.assertIn(category.name, data['types'][0]['category_name'])
 
     # Basic happy path, ensure the /food/types route returns entries filtered by category id
     def test_types_filtered_all(self):
@@ -95,6 +99,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
+            self.assertIn(category.name, data['types'][0]['category_name'])
 
     # Ensure the /food/types route returns entries filtered by category id
     def test_types_filtered_catid(self):
@@ -109,6 +114,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category2.id, data['types'][0]['category_id'])
+            self.assertIn(category2.name, data['types'][0]['category_name'])
 
     # Ensure the /food/types route returns entries filtered by category name
     def test_types_filtered_catname(self):
@@ -123,6 +129,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category2.id, data['types'][0]['category_id'])
+            self.assertIn(category2.name, data['types'][0]['category_name'])
 
     # Ensure the /food/types route returns entries filtered by category id and name
     def test_types_filtered_catid_catname(self):
@@ -137,6 +144,7 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category2.id, data['types'][0]['category_id'])
+            self.assertIn(category2.name, data['types'][0]['category_name'])
 
     # Ensure the /food/types route returns an empty list for entries filtered by category id for no results
     def test_types_filtered_no_results(self):
@@ -210,8 +218,10 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 2)
             self.assertIn('Multigrain', data['types'][0]['name'])
             self.assertEqual(category1.id, data['types'][0]['category_id'])
+            self.assertIn(category1.name, data['types'][0]['category_name'])
             self.assertIn('Table scraps', data['types'][1]['name'])
             self.assertEqual(category2.id, data['types'][1]['category_id'])
+            self.assertIn(category2.name, data['types'][1]['category_name'])
 
     # Ensure the /food/types route returns an error for repeated category_id
     def test_types_repeated_catid_error(self):
