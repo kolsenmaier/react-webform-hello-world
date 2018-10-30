@@ -97,13 +97,41 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(category.id, data['types'][0]['category_id'])
 
     # Ensure the /food/types route returns entries filtered by category id
-    def test_types_filtered_excluded(self):
+    def test_types_filtered_catid(self):
         category1 = create_food_category('Bread')
         category2 = create_food_category('Other')
         create_food_type('Multigrain', category1.id, True)
         create_food_type('Table scraps', category2.id, True)
         with self.client:
             response = self.client.get('/api/food/types', query_string=dict(category_id=category2.id))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['types']), 1)
+            self.assertIn('Table scraps', data['types'][0]['name'])
+            self.assertEqual(category2.id, data['types'][0]['category_id'])
+
+    # Ensure the /food/types route returns entries filtered by category name
+    def test_types_filtered_catname(self):
+        category1 = create_food_category('Bread')
+        category2 = create_food_category('Other')
+        create_food_type('Multigrain', category1.id, True)
+        create_food_type('Table scraps', category2.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_name=category2.name))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['types']), 1)
+            self.assertIn('Table scraps', data['types'][0]['name'])
+            self.assertEqual(category2.id, data['types'][0]['category_id'])
+
+    # Ensure the /food/types route returns entries filtered by category id and name
+    def test_types_filtered_catid_catname(self):
+        category1 = create_food_category('Bread')
+        category2 = create_food_category('Other')
+        create_food_type('Multigrain', category1.id, True)
+        create_food_type('Table scraps', category2.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_id=category2.id, category_name=category2.name))
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
@@ -121,6 +149,54 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 0)
 
+    # Ensure the /food/types route fails for entries filtered by an invalid category id
+    def test_types_filtered_invalid_catid(self):
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_id='invalid'))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(len(data['errors']), 1)
+            self.assertIn('Invalid request.', data['errors'][0])
+
+    # Ensure the /food/types route fails for entries filtered by a category id that doesn't exist
+    def test_types_filtered_catid_not_found(self):
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_id=100))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(len(data['errors']), 2)
+            self.assertIn('Invalid request.', data['errors'][0])
+            self.assertIn('Invalid food category.', data['errors'][1])
+
+    # Ensure the /food/types route fails for entries filtered by a category name that doesn't exist
+    def test_types_filtered_catname_not_found(self):
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_name='invalid'))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(len(data['errors']), 2)
+            self.assertIn('Invalid request.', data['errors'][0])
+            self.assertIn('Invalid food category.', data['errors'][1])
+
+    # Ensure the /food/types route fails for entries filtered by a category id and name that don't match
+    def test_types_filtered_catid_catname_mismatch(self):
+        category1 = create_food_category('Bread')
+        category2 = create_food_category('Other')
+        create_food_type('Table scraps', category2.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string=dict(category_id=category1.id, category_name=category2.name))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(len(data['errors']), 2)
+            self.assertIn('Invalid request.', data['errors'][0])
+            self.assertIn('Invalid food category.', data['errors'][1])
+
     # Ensure the /food/types route ignores unsupported args
     def test_types_unsupported_args(self):
         category1 = create_food_category('Bread')
@@ -137,18 +213,33 @@ class TestFoodTypeService(BaseTestCase):
             self.assertIn('Table scraps', data['types'][1]['name'])
             self.assertEqual(category2.id, data['types'][1]['category_id'])
 
-    # Ensure the /food/types route returns an error for repeated category_ids
-    def test_types_repeated_args_error(self):
+    # Ensure the /food/types route returns an error for repeated category_id
+    def test_types_repeated_catid_error(self):
         category1 = create_food_category('Bread')
         category2 = create_food_category('Other')
         create_food_type('Multigrain', category1.id, True)
         create_food_type('Table scraps', category2.id, True)
         with self.client:
-            response = self.client.get('/api/food/types', query_string='category_id=category1&category_id=category2.id')
+            response = self.client.get('/api/food/types', query_string='category_id={0}&category_id={1}'.format(category1.id, category2.id))
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 400)
-            self.assertEqual(len(data['errors']), 1)
-            self.assertIn('Too many arguments. Only one category_id is allowed.', data['errors'][0])
+            self.assertEqual(len(data['errors']), 2)
+            self.assertIn('Invalid request.', data['errors'][0])
+            self.assertIn('Too many arguments. Only one category_id is allowed.', data['errors'][1])
+
+    # Ensure the /food/types route returns an error for repeated category_name
+    def test_types_repeated_catname_error(self):
+        category1 = create_food_category('Bread')
+        category2 = create_food_category('Other')
+        create_food_type('Multigrain', category1.id, True)
+        create_food_type('Table scraps', category2.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types', query_string='category_name={0}&category_name={1}'.format(category1.name, category2.name))
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(len(data['errors']), 2)
+            self.assertIn('Invalid request.', data['errors'][0])
+            self.assertIn('Too many arguments. Only one category_name is allowed.', data['errors'][1])
 
 if __name__ == '__main__':
     unittest.main()

@@ -44,7 +44,7 @@ def create_submission():
             db_location = Location(name=location_name, gpid='', types='') # TODO
             db.session.add(db_location)
         db.session.commit()
-    except exc.IntegrityError as e:
+    except (exc.DataError, exc.IntegrityError) as e:
         db.session.rollback()
         return jsonify(response_object), 400
 
