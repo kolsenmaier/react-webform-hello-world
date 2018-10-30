@@ -12,8 +12,8 @@ def create_food_category(name):
     return category
 
 # Helper function to add food type entries to the DB
-def create_food_type(type, catid, isvisible):
-    type = FoodType(type=type, catid=catid, isvisible=isvisible)
+def create_food_type(name, catid, isvisible):
+    type = FoodType(name=name, catid=catid, isvisible=isvisible)
     db.session.add(type)
     db.session.commit()
     return type
@@ -53,7 +53,7 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
-            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
 
     # Ensure the /food/types route behaves correctly for multiple entries
@@ -66,9 +66,9 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 2)
-            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
-            self.assertIn('Raisins', data['types'][1]['type'])
+            self.assertIn('Raisins', data['types'][1]['name'])
             self.assertEqual(category.id, data['types'][1]['category_id'])
 
     # Ensure the /food/types route does not return entries with isvisible=false
@@ -81,7 +81,7 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
-            self.assertIn('Raisins', data['types'][0]['type'])
+            self.assertIn('Raisins', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
 
     # Basic happy path, ensure the /food/types route returns entries filtered by category id
@@ -93,7 +93,7 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
-            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category.id, data['types'][0]['category_id'])
 
     # Ensure the /food/types route returns entries filtered by category id
@@ -107,7 +107,7 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 1)
-            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertIn('Table scraps', data['types'][0]['name'])
             self.assertEqual(category2.id, data['types'][0]['category_id'])
 
     # Ensure the /food/types route returns an empty list for entries filtered by category id for no results
@@ -132,9 +132,9 @@ class TestFoodTypeService(BaseTestCase):
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(data['types']), 2)
-            self.assertIn('Multigrain', data['types'][0]['type'])
+            self.assertIn('Multigrain', data['types'][0]['name'])
             self.assertEqual(category1.id, data['types'][0]['category_id'])
-            self.assertIn('Table scraps', data['types'][1]['type'])
+            self.assertIn('Table scraps', data['types'][1]['name'])
             self.assertEqual(category2.id, data['types'][1]['category_id'])
 
     # Ensure the /food/types route returns an error for repeated category_ids

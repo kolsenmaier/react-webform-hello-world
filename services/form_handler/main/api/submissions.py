@@ -35,9 +35,9 @@ def create_submission():
         if not db_foodcategory:
             response_object['errors'].append('Invalid food category.')
             return jsonify(response_object), 400
-        db_foodtype = FoodType.query.filter_by(catid=db_foodcategory.id, type=food_type).first()
+        db_foodtype = FoodType.query.filter_by(catid=db_foodcategory.id, name=food_type).first()
         if not db_foodtype:
-            db_foodtype = FoodType(type=food_type, catid=db_foodcategory.id, isvisible=False)
+            db_foodtype = FoodType(name=food_type, catid=db_foodcategory.id, isvisible=False)
             db.session.add(db_foodtype)
         db_location = Location.query.filter_by(name=location_name).first()
         if not db_location:

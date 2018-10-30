@@ -17,19 +17,19 @@ class FoodCategory(db.Model):
 class FoodType(db.Model):
     __tablename__ = 'foodtype'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    type = db.Column(db.String(128), nullable=False)
+    name = db.Column(db.String(128), nullable=False)
     catid = db.Column(db.Integer, db.ForeignKey('foodcategory.id'))
     isvisible = db.Column(db.Boolean(), default=False, nullable=False)
 
-    def __init__(self, type, catid, isvisible):
-        self.type = type
+    def __init__(self, name, catid, isvisible):
+        self.name = name
         self.catid = catid
         self.isvisible = isvisible
 
     def to_json(self):
         return {
             'id': self.id,
-            'type': self.type,
+            'name': self.name,
             'category_id': self.catid
         }
 

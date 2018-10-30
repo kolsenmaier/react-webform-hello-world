@@ -15,8 +15,8 @@ def create_food_category(name):
 
 # Helper function to add food type entries to the DB
 # Used for testing successful lookup of pre-existing types
-def create_food_type(type, catid, isvisible):
-    type = FoodType(type=type, catid=catid, isvisible=isvisible)
+def create_food_type(name, catid, isvisible):
+    type = FoodType(name=name, catid=catid, isvisible=isvisible)
     db.session.add(type)
     db.session.commit()
     return type
@@ -43,7 +43,7 @@ class TestSubmissionService(BaseTestCase):
                 data=json.dumps({
                     'location_name': location.name,
                     'category_name': category.name,
-                    'food_type': type.type,
+                    'food_type': type.name,
                     'num_ducks': 20,
                     'grams': 30,
                     'datetime': today
@@ -76,7 +76,7 @@ class TestSubmissionService(BaseTestCase):
                 data=json.dumps({
                     'location_name': location.name,
                     'category_name': category.name,
-                    'food_type': type.type,
+                    'food_type': type.name,
                     'num_ducks': 20,
                     'grams': 30,
                     'datetime': today
@@ -118,7 +118,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(20, data['submission']['numducks'])
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
-        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, type='Sourdough').first())
+        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, name='Sourdough').first())
 
     # Ensure the /submissions route behaves correctly when location does not pre-exist
     def test_submission_new_location(self):
@@ -131,7 +131,7 @@ class TestSubmissionService(BaseTestCase):
                 data=json.dumps({
                     'location_name': 'Swan Lake',
                     'category_name': category.name,
-                    'food_type': type.type,
+                    'food_type': type.name,
                     'num_ducks': 20,
                     'grams': 30,
                     'datetime': today
@@ -173,7 +173,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(20, data['submission']['numducks'])
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
-        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, type='Multigrain').first())
+        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, name='Multigrain').first())
         self.assertIsNotNone(Location.query.filter_by(name='Swan Lake').first())
 
     # Ensure the /submissions route fails for empty JSON
@@ -208,7 +208,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(len(data['errors']), 1)
         self.assertIn('Invalid payload.', data['errors'][0])
-        self.assertIsNone(FoodType.query.filter_by(catid=category.id, type='Multigrain').first())
+        self.assertIsNone(FoodType.query.filter_by(catid=category.id, name='Multigrain').first())
 
     # Ensure the /submissions route fails when the provided foodcategory does not exist
     def test_submission_invalid_food_category(self):
@@ -232,7 +232,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertIn('Invalid payload.', data['errors'][0])
         self.assertIn('Invalid food category.', data['errors'][1])
         self.assertIsNone(FoodCategory.query.filter_by(name='Invalid').first())
-        self.assertIsNone(FoodType.query.filter_by(type='New type').first())
+        self.assertIsNone(FoodType.query.filter_by(name='New type').first())
         self.assertIsNone(Location.query.filter_by(name='Beacon Hill Park').first())
 
 if __name__ == '__main__':
