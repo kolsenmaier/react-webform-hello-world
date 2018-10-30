@@ -293,5 +293,39 @@ class TestSubmissionService(BaseTestCase):
         self.assertIsNone(FoodType.query.filter_by(name='New type').first())
         self.assertIsNone(Location.query.filter_by(name='Beacon Hill Park').first())
 
+    # Ensure the /submissions route behaves correctly for attempted SQL injections
+    def test_submission_sql_injection(self):
+        category = create_food_category('Bread')
+        type = create_food_type('Rye', category.id, True)
+        location_name = 'Beacon Hill Park; drop table location;'
+        location_gpid = 'ChIJa4uQ3-p0j1QRDtSaFQ5NHrQ'
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        self.assertIsNone(Location.query.filter_by(gpid=location_gpid).first())
+        self.assertIsNone(Location.query.filter_by(name=location_name).first())
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': location_name,
+                    'google_place_id': location_gpid,
+                    'category_name': category.name,
+                    'food_type': type.name,
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertIsNotNone(data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+        self.assertIsNotNone(Location.query.filter_by(gpid=location_gpid).first())
+        self.assertIsNotNone(Location.query.filter_by(name=location_name).first())
+
 if __name__ == '__main__':
     unittest.main()

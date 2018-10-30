@@ -17,8 +17,6 @@ def create_submission():
         return jsonify(response_object), 400
 
     # Get request data
-    # TODO test with malicious input and see if there's existing sanitization.
-    # TODO could also use string replacement "%s", (var) or other available methods to sanitize
     location_name = post_data.get('location_name')
     location_gpid = post_data.get('google_place_id')
     location_types = post_data.get('location_types')
