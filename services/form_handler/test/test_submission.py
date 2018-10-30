@@ -118,6 +118,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(20, data['submission']['numducks'])
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
+        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, type='Sourdough').first())
 
     # Ensure the /submissions route behaves correctly when location does not pre-exist
     def test_submission_new_location(self):
@@ -145,6 +146,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(20, data['submission']['numducks'])
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
+        self.assertIsNotNone(Location.query.filter_by(name='Swan Lake').first())
 
     # Ensure the /submissions route behaves correctly when foodtype and location do not pre-exist
     def test_submission_new_foodtype_location(self):
@@ -171,6 +173,8 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(20, data['submission']['numducks'])
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
+        self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, type='Multigrain').first())
+        self.assertIsNotNone(Location.query.filter_by(name='Swan Lake').first())
 
     # Ensure the /submissions route fails for empty JSON
     def test_submission_invalid_json(self):
@@ -204,6 +208,7 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(len(data['errors']), 1)
         self.assertIn('Invalid payload.', data['errors'][0])
+        self.assertIsNone(FoodType.query.filter_by(catid=category.id, type='Multigrain').first())
 
     # Ensure the /submissions route fails when the provided foodcategory does not exist
     def test_submission_invalid_food_category(self):
@@ -226,6 +231,9 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(len(data['errors']), 2)
         self.assertIn('Invalid payload.', data['errors'][0])
         self.assertIn('Invalid food category.', data['errors'][1])
+        self.assertIsNone(FoodCategory.query.filter_by(name='Invalid').first())
+        self.assertIsNone(FoodType.query.filter_by(type='New type').first())
+        self.assertIsNone(Location.query.filter_by(name='Beacon Hill Park').first())
 
 if __name__ == '__main__':
     unittest.main()

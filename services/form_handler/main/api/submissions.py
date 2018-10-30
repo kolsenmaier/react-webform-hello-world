@@ -39,12 +39,11 @@ def create_submission():
         if not db_foodtype:
             db_foodtype = FoodType(type=food_type, catid=db_foodcategory.id, isvisible=False)
             db.session.add(db_foodtype)
-            db.session.commit()
         db_location = Location.query.filter_by(name=location_name).first()
         if not db_location:
             db_location = Location(name=location_name, gpid='', types='') # TODO
             db.session.add(db_location)
-            db.session.commit()
+        db.session.commit()
     except exc.IntegrityError as e:
         db.session.rollback()
         return jsonify(response_object), 400
