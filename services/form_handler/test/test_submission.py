@@ -42,7 +42,7 @@ class TestSubmissionService(BaseTestCase):
             response = self.client.post('/api/submissions',
                 data=json.dumps({
                     'location_name': location.name,
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': type.type,
                     'num_ducks': 20,
                     'grams': 30,
@@ -75,7 +75,7 @@ class TestSubmissionService(BaseTestCase):
             response = self.client.post('/api/submissions',
                 data=json.dumps({
                     'location_name': location.name,
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': type.type,
                     'num_ducks': 20,
                     'grams': 30,
@@ -102,7 +102,7 @@ class TestSubmissionService(BaseTestCase):
             response = self.client.post('/api/submissions',
                 data=json.dumps({
                     'location_name': location.name,
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': 'Sourdough',
                     'num_ducks': 20,
                     'grams': 30,
@@ -129,7 +129,7 @@ class TestSubmissionService(BaseTestCase):
             response = self.client.post('/api/submissions',
                 data=json.dumps({
                     'location_name': 'Swan Lake',
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': type.type,
                     'num_ducks': 20,
                     'grams': 30,
@@ -155,7 +155,7 @@ class TestSubmissionService(BaseTestCase):
             response = self.client.post('/api/submissions',
                 data=json.dumps({
                     'location_name': 'Swan Lake',
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': 'Multigrain',
                     'num_ducks': 20,
                     'grams': 30,
@@ -192,7 +192,7 @@ class TestSubmissionService(BaseTestCase):
         with self.client:
             response = self.client.post('/api/submissions',
                 data=json.dumps({
-                    'category_id': category.id,
+                    'category_name': category.name,
                     'food_type': 'Multigrain',
                     'num_ducks': 20,
                     'grams': 30,
@@ -204,6 +204,28 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(len(data['errors']), 1)
         self.assertIn('Invalid payload.', data['errors'][0])
+
+    # Ensure the /submissions route fails when the provided foodcategory does not exist
+    def test_submission_invalid_food_category(self):
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': 'Beacon Hill Park',
+                    'category_name': 'Invalid',
+                    'food_type': 'New type',
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(data['errors']), 2)
+        self.assertIn('Invalid payload.', data['errors'][0])
+        self.assertIn('Invalid food category.', data['errors'][1])
 
 if __name__ == '__main__':
     unittest.main()
