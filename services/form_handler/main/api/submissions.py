@@ -12,11 +12,13 @@ def create_submission():
     response_object = {
         'errors': ['Invalid payload.']
     }
+    post_data = request.get_json()
+    if not post_data:
+        return jsonify(response_object), 400
 
     # Get request data
     # TODO test with malicious input and see if there's existing sanitization.
     # TODO could also use string replacement "%s", (var) or other available methods to sanitize
-    post_data = request.get_json()
     location_name = post_data.get('location_name')
     category_id = post_data.get('category_id') #TODO decide if this is final or if we'll accept by name also
     food_type = post_data.get('food_type')

@@ -172,6 +172,18 @@ class TestSubmissionService(BaseTestCase):
         self.assertEqual(30, data['submission']['grams'])
         self.assertIn(today, data['submission']['datetime'])
 
+    # Ensure the /submissions route fails for empty JSON
+    def test_submission_invalid_json(self):
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({}),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(data['errors']), 1)
+        self.assertIn('Invalid payload.', data['errors'][0])
+
     # Ensure the /submissions route fails when no location provided
     def test_submission_missing_location(self):
         category = create_food_category('Bread')
