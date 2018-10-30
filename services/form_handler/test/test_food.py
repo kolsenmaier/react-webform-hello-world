@@ -13,8 +13,8 @@ def create_food_category(name):
     return category
 
 # Helper function to add food type entries to the DB
-def create_food_type(type, catid):
-    type = FoodType(type=type, catid=catid)
+def create_food_type(type, catid, isvisible):
+    type = FoodType(type=type, catid=catid, isvisible=isvisible)
     db.session.add(type)
     db.session.commit()
     return type
@@ -48,7 +48,7 @@ class TestFoodTypeService(BaseTestCase):
     # Basic happy path, ensure the /food/types route behaves correctly
     def test_food_types(self):
         category = create_food_category('Other')
-        create_food_type('Table scraps', category.id)
+        create_food_type('Table scraps', category.id, True)
         with self.client:
             response = self.client.get('/api/food/types')
             data = json.loads(response.data.decode())
@@ -56,7 +56,34 @@ class TestFoodTypeService(BaseTestCase):
             self.assertEqual(len(data['types']), 1)
             self.assertIn('Table scraps', data['types'][0]['type'])
             self.assertEquals(category.id, data['types'][0]['catid'])
-            self.assertEquals(False, data['types'][0]['isvisible'])
+
+    # Ensure the /food/types route behaves correctly for multiple entries
+    def test_multiple_types(self):
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id, True)
+        create_food_type('Raisins', category.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['types']), 2)
+            self.assertIn('Table scraps', data['types'][0]['type'])
+            self.assertEquals(category.id, data['types'][0]['catid'])
+            self.assertIn('Raisins', data['types'][1]['type'])
+            self.assertEquals(category.id, data['types'][1]['catid'])
+
+    # Ensure the /food/types route does not return entries with isvisible=false
+    def test_invisible_types(self):
+        category = create_food_category('Other')
+        create_food_type('Table scraps', category.id, False)
+        create_food_type('Raisins', category.id, True)
+        with self.client:
+            response = self.client.get('/api/food/types')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['types']), 1)
+            self.assertIn('Raisins', data['types'][0]['type'])
+            self.assertEquals(category.id, data['types'][0]['catid'])
 
 if __name__ == '__main__':
     unittest.main()
