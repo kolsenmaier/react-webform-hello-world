@@ -68,5 +68,5 @@ class Submission(db.Model):
             'foodtype_id': self.fid,
             'numducks': self.numducks,
             'grams': self.grams,
-            'datetime': self.datetime
+            'datetime': self.datetime.strftime('%Y-%m-%d %H:%M:%S')
         }

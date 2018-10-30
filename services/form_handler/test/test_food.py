@@ -1,8 +1,7 @@
 import json
 import unittest
 from main import db
-from main.api.models import FoodCategory
-from main.api.models import FoodType
+from main.api.models import FoodCategory, FoodType
 from test.base import BaseTestCase
 
 # Helper function to add food category entries to the DB

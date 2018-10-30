@@ -21,6 +21,8 @@ def create_app(script_info=None):
     app.register_blueprint(food_categories_blueprint)
     from main.api.foodtypes import food_types_blueprint
     app.register_blueprint(food_types_blueprint)
+    from main.api.submissions import submissions_blueprint
+    app.register_blueprint(submissions_blueprint)
 
     # Shell context for flask cli
     @app.shell_context_processor
