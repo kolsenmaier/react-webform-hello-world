@@ -43,7 +43,7 @@ class TestSubmissionService(BaseTestCase):
                 data=json.dumps({
                     'location_name': location.name,
                     'category_id': category.id,
-                    'food_type': type.id,
+                    'food_type': type.type,
                     'num_ducks': 20,
                     'grams': 30,
                     'datetime': today
@@ -52,7 +52,7 @@ class TestSubmissionService(BaseTestCase):
             )
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 201)
-        self.assertIn('Successfully created submission', data['status'])
+        self.assertIn('Successfully created submission.', data['status'])
         self.assertEquals(location.id, data['submission']['location_id'])
         self.assertEquals(type.id, data['submission']['foodtype_id'])
         self.assertEquals(20, data['submission']['numducks'])
