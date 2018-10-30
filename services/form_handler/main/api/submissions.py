@@ -20,6 +20,8 @@ def create_submission():
     # TODO test with malicious input and see if there's existing sanitization.
     # TODO could also use string replacement "%s", (var) or other available methods to sanitize
     location_name = post_data.get('location_name')
+    location_gpid = post_data.get('google_place_id')
+    location_types = post_data.get('location_types')
     category_name = post_data.get('category_name')
     food_type = post_data.get('food_type')
     num_ducks = post_data.get('num_ducks')
@@ -39,9 +41,13 @@ def create_submission():
         if not db_foodtype:
             db_foodtype = FoodType(name=food_type, catid=db_foodcategory.id, isvisible=False)
             db.session.add(db_foodtype)
-        db_location = Location.query.filter_by(name=location_name).first()
+        db_location = None
+        if location_gpid:
+            db_location = Location.query.filter_by(gpid=location_gpid).first()
+        else:
+            db_location = Location.query.filter_by(name=location_name).first()
         if not db_location:
-            db_location = Location(name=location_name, gpid='', types='') # TODO
+            db_location = Location(name=location_name, gpid=location_gpid, types=location_types)
             db.session.add(db_location)
         db.session.commit()
     except (exc.DataError, exc.IntegrityError) as e:

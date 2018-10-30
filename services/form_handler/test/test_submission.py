@@ -23,8 +23,8 @@ def create_food_type(name, catid, isvisible):
 
 # Helper function to add location entries to the DB
 # Used for testing successful lookup of pre-existing locations
-def create_location(name):
-    location = Location(name=name, gpid='', types='')
+def create_location(name, gpid='', types=''):
+    location = Location(name=name, gpid=gpid, types=types)
     db.session.add(location)
     db.session.commit()
     return location
@@ -175,6 +175,64 @@ class TestSubmissionService(BaseTestCase):
         self.assertIn(today, data['submission']['datetime'])
         self.assertIsNotNone(FoodType.query.filter_by(catid=category.id, name='Multigrain').first())
         self.assertIsNotNone(Location.query.filter_by(name='Swan Lake').first())
+
+    # Ensure the /submissions route can look up locations by place ID
+    def test_submission_location_gpid(self):
+        category = create_food_category('Bread')
+        type = create_food_type('Rye', category.id, True)
+        location = create_location('Beacon Hill Park', 'ChIJa4uQ3-p0j1QRDtSaFQ5NHrQ', 'park,zoo')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'google_place_id': location.gpid,
+                    'category_name': category.name,
+                    'food_type': type.name,
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertEqual(location.id, data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
+
+    # Ensure the /submissions route favours place ID over name
+    def test_submission_location_gpid_vs_name(self):
+        category = create_food_category('Bread')
+        type = create_food_type('Rye', category.id, True)
+        location1 = create_location('Beacon Hill Park', 'ChIJa4uQ3-p0j1QRDtSaFQ5NHrQ', 'park,zoo')
+        location2 = create_location('Swan Lake Loop', 'EihTd2FuIExha2UgTG9vcCwgVmljdG9yaWEsIEJDIFY4WCwgQ2FuYWRhIi4qLAoUChIJL9eUG7tzj1QRN4CfE9AtDX4SFAoSCXFhsN2Lc49UEe1Iux508-g4', 'park')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        with self.client:
+            response = self.client.post('/api/submissions',
+                data=json.dumps({
+                    'location_name': location2.name,
+                    'google_place_id': location1.gpid,
+                    'category_name': category.name,
+                    'food_type': type.name,
+                    'num_ducks': 20,
+                    'grams': 30,
+                    'datetime': today
+                }),
+                content_type='application/json',
+            )
+        data = json.loads(response.data.decode())
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('Successfully created submission.', data['status'])
+        self.assertEqual(location1.id, data['submission']['location_id'])
+        self.assertEqual(type.id, data['submission']['foodtype_id'])
+        self.assertEqual(20, data['submission']['numducks'])
+        self.assertEqual(30, data['submission']['grams'])
+        self.assertIn(today, data['submission']['datetime'])
 
     # Ensure the /submissions route fails for empty JSON
     def test_submission_invalid_json(self):
