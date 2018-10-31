@@ -27,7 +27,6 @@ function validate(feedingEventInfo, valueRequiringSpecifics) {
 class FormContainer extends Component {  
   constructor(props) {
     super(props);
-    this.getFoodOptions();  //TODO
 
     this.state = {
       // Current form entry info
@@ -58,16 +57,7 @@ class FormContainer extends Component {
       // Dropdown options
       valueRequiringSpecifics: 'Other',
       numberRangeOptions: ['1-5', '5-10', '10-15', '15-20', '20-30', '30-40', '40-50', '50+'],
-      foodTypeOptionsMap: {
-        'Bread' : ['White', 'Whole wheat', 'Sourdough', 'Rye', 'Other'],
-        'Corn' : ['Canned', 'Frozen', 'Fresh'],
-        'Duck pellets': null,
-        'Lettuce or other greens': null,
-        'Oats' : ['Rolled', 'Instant'],
-        'Peas' : ['Frozen', 'Fresh'],
-        'Seeds' :  ['Bird seed', 'Other'],
-        'Other' : null
-      },
+      foodTypeOptionsMap: {},
       foodAmountOptions: ['25g', '50g', '100g', '200g', '500g', '1000g', 'More than 1000g', 'I don\'t know'],
     };
 
@@ -82,6 +72,9 @@ class FormContainer extends Component {
   }
 
   /* This lifecycle hook gets executed when the component mounts */
+  componentDidMount() {
+      this.getFoodOptions();
+  }
 
   /**
    * Handle datetime picker
@@ -170,7 +163,25 @@ class FormContainer extends Component {
    */
   getFoodOptions() {
     axios.get(`${process.env.REACT_APP_BASE_API_URL}/food/categories`)
-      .then((res) => { console.log(res.data.categories); }) //TODO
+      .then((res) => {
+        let categoryMap = {};
+        let categories = res.data.categories;
+        for (let i=0; i < categories.length; i++) {
+          let categoryName = categories[i]['name'];
+          let typeNames = [];
+          axios.get(`${process.env.REACT_APP_BASE_API_URL}/food/types?category_name=${categoryName}`)
+            .then((res) => {
+              let types = res.data.types;
+              for (let i=0; i < types.length; i++) {
+                typeNames.push(types[i]['name']);
+              }
+            })
+            .catch((err) => { console.log(err); });
+
+          categoryMap[categoryName] = typeNames;
+        }
+        this.setState({foodTypeOptionsMap: categoryMap})
+      })
       .catch((err) => { console.log(err); });
   }
 
@@ -318,7 +329,7 @@ class FormContainer extends Component {
               handleChange={this.handleInput}
             /> : null } {/* Specific food for "Other" selection */}
 
-            { this.state.feedingEventInfo.currentFoodTypeOptions ?
+            { this.state.feedingEventInfo.currentFoodTypeOptions && this.state.feedingEventInfo.currentFoodTypeOptions.length > 0 ?
             <Select title={'Please specify'}
               name={'foodType'}
               required={true}
