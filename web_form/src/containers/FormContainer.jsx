@@ -173,7 +173,7 @@ class FormContainer extends Component {
         for (let i=0; i < categories.length; i++) {
           let categoryName = categories[i]['name'];
           let typeNames = [];
-          axios.get(`${process.env.REACT_APP_BASE_API_URL}/food/types?category_name=${categoryName}`)
+          axios.get(`${process.env.REACT_APP_BASE_API_URL}/food/types?category_name=${encodeURIComponent(categoryName)}`)
             .then((res) => {
               let types = res.data.types;
               for (let i=0; i < types.length; i++) {
