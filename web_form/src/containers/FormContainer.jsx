@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import axios from 'axios';
 
 /* Import Components */
 import Input from '../components/Input';
@@ -26,6 +27,7 @@ function validate(feedingEventInfo, valueRequiringSpecifics) {
 class FormContainer extends Component {  
   constructor(props) {
     super(props);
+    this.getFoodOptions();  //TODO
 
     this.state = {
       // Current form entry info
@@ -162,6 +164,15 @@ class FormContainer extends Component {
       touched: { ...this.state.touched, [field]: true },
     });
   };
+
+  /**
+   * Get all food categories
+   */
+  getFoodOptions() {
+    axios.get(`${process.env.REACT_APP_BASE_API_URL}/food/categories`)
+      .then((res) => { console.log(res.data.categories); }) //TODO
+      .catch((err) => { console.log(err); });
+  }
 
   /**
    * Validate form contents before submit

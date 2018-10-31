@@ -52,5 +52,6 @@ services:
       - '3000:3000'
     environment:
       - NODE_ENV=development
+      - REACT_APP_BASE_API_URL=http://localhost/api
     depends_on:
       - form-handler

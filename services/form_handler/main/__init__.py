@@ -1,6 +1,7 @@
 import os
 from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # Instantiate the database
 db = SQLAlchemy()
@@ -8,6 +9,9 @@ db = SQLAlchemy()
 def create_app(script_info=None):
     # Instantiate the app
     app = Flask(__name__)
+
+    # Enable CORS
+    CORS(app)
 
     # Get config
     app_settings = os.getenv('APP_SETTINGS')
