@@ -11,7 +11,7 @@ import CustomDateTimePicker from '../components/CustomDateTimePicker';
  * Confirm fields are filled in and have valid data
  */
 function validate(feedingEventInfo, valueRequiringSpecifics) {
-  // true means invalid
+  // True means invalid
   return {
     numberOfDucks: feedingEventInfo.numberOfDucks.length === 0,
     food: feedingEventInfo.food.length === 0,
@@ -56,9 +56,9 @@ class FormContainer extends Component {
 
       // Dropdown options
       valueRequiringSpecifics: 'Other',
-      numberRangeOptions: ['1-5', '5-10', '10-15', '15-20', '20-30', '30-40', '40-50', '50+'],
+      numDucksOptions: ['5', '10', '15', '20', '30', '40', '50'],
       foodTypeOptionsMap: {},
-      foodAmountOptions: ['25g', '50g', '100g', '200g', '500g', '1000g', 'More than 1000g', 'I don\'t know'],
+      foodAmountOptions: ['25g', '50g', '100g', '200g', '500g', '1000g']
     };
 
     this.handleDate = this.handleDate.bind(this);
@@ -190,6 +190,7 @@ class FormContainer extends Component {
    */
   canBeSubmitted() {
     const errors = validate(this.state.feedingEventInfo, this.state.valueRequiringSpecifics);
+    return !(errors.numberOfDucks || errors.food || errors.specificFood || errors.foodType || errors.specificFoodType || errors.amountOfFood || errors.location || errors.time);
   }
 
   /**
@@ -213,22 +214,30 @@ class FormContainer extends Component {
       });
       return;
     }
-      // TODO send to app correctly
+
+    // Send to app
     e.preventDefault();
     let eventData = this.state.feedingEventInfo;
+    let foodType = eventData.food === this.state.valueRequiringSpecifics ?
+          eventData.specificFood
+        : eventData.foodType === this.state.valueRequiringSpecifics ?
+            eventData.specificFoodType
+          : eventData.foodType;
+    const data = {
+      location_name: eventData.location,
+      location_gpid: '',
+      location_types: '',
+      category_name: eventData.food,
+      food_type: foodType,
+      num_ducks: eventData.numberOfDucks,
+      grams: eventData.amountOfFood.slice(0, -1),
+      datetime: eventData.time
+    };
+    axios.post(`${process.env.REACT_APP_BASE_API_URL}/submissions`, data)
+        .then((res) => { console.log(res); })
+        .catch((err) => { console.log(err); });
 
-    fetch('http://example.com',{
-        method: "POST",
-        body: JSON.stringify(eventData),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-      }).then(response => {
-        response.json().then(data =>{
-          console.log("Successful" + data);
-        })
-    })
+    // TODO display success message and clear form
   }   
 
   /**
@@ -295,9 +304,9 @@ class FormContainer extends Component {
             <Select title={'Number of ducks'}
               name={'numberOfDucks'}
               required={true}
-              options = {this.state.numberRangeOptions}
+              options = {this.state.numDucksOptions}
               value = {this.state.feedingEventInfo.numberOfDucks}
-              placeholder = {'Select number range'}
+              placeholder = {'Select closest number'}
               hasErrors={errors.numberOfDucks && this.state.touched.numberOfDucks}
               handleBlur={this.handleBlur('numberOfDucks')}
               handleChange = {this.handleNumDucks}
