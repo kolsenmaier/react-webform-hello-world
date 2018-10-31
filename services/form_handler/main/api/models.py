@@ -4,6 +4,7 @@ class FoodCategory(db.Model):
     __tablename__ = 'foodcategory'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), nullable=False)
+    db.UniqueConstraint(name)
 
     def __init__(self, name):
         self.name = name
@@ -20,6 +21,7 @@ class FoodType(db.Model):
     name = db.Column(db.String(128), nullable=False)
     catid = db.Column(db.Integer, db.ForeignKey('foodcategory.id'))
     isvisible = db.Column(db.Boolean(), default=False, nullable=False)
+    db.UniqueConstraint(name, catid)
 
     def __init__(self, name, catid, isvisible):
         self.name = name
@@ -40,6 +42,7 @@ class Location(db.Model):
     name = db.Column(db.String(128), nullable=False)
     gpid = db.Column(db.String(128), nullable=True)
     types = db.Column(db.String(128), nullable=True)
+    db.UniqueConstraint(name, gpid)
 
     def __init__(self, name, gpid, types):
         self.name = name

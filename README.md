@@ -27,7 +27,8 @@ API endpoints will be available at:
 
 Submissions, locations and new food types are not visible in the API, but you can see what’s happening in the database with:
 
-`docker-compose -f docker-compose.yml exec db psql -U postgres`
+1. `docker-compose -f docker-compose.yml exec db psql -U postgres`
+2. `\c db_dev`
 
 To run the React form alone, you will need to:
 1. `cd web_form`
