@@ -54,6 +54,9 @@ class FormContainer extends Component {
         amountOfFood: false
       },
 
+      // Track whether the user just submitted the form
+      successfulSubmission: false,
+
       // Dropdown options
       valueRequiringSpecifics: 'Other',
       numDucksOptions: ['5', '10', '15', '20', '30', '40', '50'],
@@ -155,6 +158,7 @@ class FormContainer extends Component {
   handleBlur = (field) => (e) => {
     this.setState({
       touched: { ...this.state.touched, [field]: true },
+      successfulSubmission: false
     });
   };
 
@@ -237,8 +241,10 @@ class FormContainer extends Component {
         .then((res) => { console.log(res); })
         .catch((err) => { console.log(err); });
 
-    // TODO display success message and clear form
-  }   
+    // Display success message and clear form data
+    this.setState({successfulSubmission: true});
+    this.handleClearForm(e);
+  }
 
   /**
    * Clear form fields and reset focus tracking
@@ -386,6 +392,10 @@ class FormContainer extends Component {
             title = {'Clear'}
             style={buttonStyle}
           /> {/* Clear the form */}
+
+          { this.state.successfulSubmission === true ?
+            <p>Form submitted successfully. Thank you for your participation.</p>
+          : null } {/* Success message after submissino */}
 
         </form>
     );
